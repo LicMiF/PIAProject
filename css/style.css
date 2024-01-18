@@ -95,8 +95,8 @@
     border-radius: 5px;
   }
 
-.button:hover,
-.button:focus {
+	.button:hover,
+	.button:focus {
     background-color: #1d574f;
     color: white;
   }
