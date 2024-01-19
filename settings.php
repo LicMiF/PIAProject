@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-    require_once "./core/userDB.php";
     require_once "./core/utilities.php";
     include_once "./includes/head.php";
 
     forbidAccesNonLogged();
 
-    include_once "./includes/header.html";
     include_once "./includes/topnav.php";
+    include_once "./includes/header.html";
 ?>
 <body>
     <div class="row">

@@ -1,4 +1,8 @@
 <?php
+    require_once "userDB.php";
+    require_once "containerClass.php";
+    require_once 'requestsDB.php';
+
     function renderForm($fields,$types,$submit,$action,$method)
     {
         echo "<form action=$action method=$method>";
@@ -6,8 +10,8 @@
         foreach($fields as $key => $val)
         {
             echo "<div class=input>";
-            echo "<strong>".$key.": "."</strong>";
-            echo "<input type='".$types[$counter]."' name=$val class='textField'> <br/>";
+            echo "<div class='label'><strong>".$key.": "."</strong></div>";
+            echo "<input type='".$types[$counter]."' name=$val placeholder='$key' class='textField'> <br/>";
             echo "</div>";
             $counter++;
         }
@@ -17,19 +21,67 @@
         echo "</form>";
     }
 
-    function renderFormRequired($fields,$submit,$action,$method)
+
+    /* Values of radio are by default stored in radio[] array*/
+    /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
+    function renderFormWithPasswordStrengthCheckAndRadios($fields,$types,$submit,$action,$method,$radios)
     {
+        
         echo "<form action=$action method=$method>";
+        $counter=0;
+
         foreach($fields as $key => $val)
         {
-            echo "<strong>".$key."*: "."</strong>";
-            echo "<input type='text' name=$val class='textField'> <br/>";
+            if($val=='checkPass')
+            {
+                displayCheck($key);
+                $counter++;
+                continue;
+            }
+            echo "<div class=input>";
+            echo "<div class='label'><strong>".$key.": "."</strong></div>";
+            echo "<input type='".$types[$counter]."' name=$val placeholder='$key' class='textField'> <br/>";
+            echo "</div>";
+            $counter++;
         }
+
+        if($radios)
+            foreach($radios as $key => $val)
+            {
+                echo "<div class=input>";
+                echo "<div class='label'><strong>".$key.": "."</strong></div>";
+                echo "<input type='radio' name='radio[]' class='radio' value=$val>";
+                echo "</div>";
+            }
+    
         echo '<br/>';
         foreach($submit as $key => $val)
             echo "<input type='submit' name=$val value='$key' class='button'><br/>";
         echo "</form>";
     }
+
+    function displayCheck($value)
+    {
+        echo '<div class="input">
+        <div class="label"><strong>'.$value.'</strong></div>
+        <input type="password" placeholder="Password" class="password-input" name="checkPass">
+        <i class="fa-solid fa-eye show-password"></i>
+
+        <div class="password-checklist">
+            <h3 class="checklist-title">Password should be</h3>
+            <ul class="checklist">
+                <li class="list-item">At least 8 character long</li>
+                <li class="list-item">At least 1 number</li>
+                <li class="list-item">At least 1 lowercase letter</li>
+                <li class="list-item">At least 1 uppercase letter</li>
+                <li class="list-item">At least 1 special character</li>
+            </ul>
+
+        </div>
+        </div>
+        ';
+    }
+
 
     function validateLogin($username,$password, &$user)
     {   
@@ -46,7 +98,28 @@
         return $uID;
     }
 
-    function validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName, &$user)
+    function paswordsChecker($password,$passwordAgain,&$user)
+    {
+        if (strlen($password)<8)
+            $user->appendError('Nedovoljno dugacka sifra');
+
+        if ($password !== $passwordAgain)
+            $user->appendError('Sifra i ponovljena sifra se razlikuju');
+
+  
+        $containsNumber = preg_match('/\d/', $password);
+        $containsLowercase = preg_match('/[a-z]/', $password);
+        $containsUppercase = preg_match('/[A-Z]/', $password);
+        $containsSpecialChar = preg_match('/[^A-Za-z0-9]/', $password);
+
+        if($containsNumber && $containsLowercase && $containsUppercase && $containsSpecialChar)
+            return ;
+
+        $user->appendError('Sifra nije dovoljno jaka, molimo vas da ispunite sve zahteve!');
+        
+    }
+
+    function validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName, $radios, &$user)
     {   
         if(empty($username) || empty($password) || empty($passwordAgain) || empty($mail) || empty($firstName))
         {
@@ -58,12 +131,6 @@
 
         if (strlen($username)>31)
             $user->appendError('Korisnicko ime je predugo, dozvoljeni maksimum je 32 karaktera');
-
-        if (strlen($password)<6)
-            $user->appendError('Nedovoljno dugacka sifra');
-
-        if ($password !== $passwordAgain)
-            $user->appendError('Sifra i ponovljena sifra se razlikuju');
 
         if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
             $user->appendError('Uneta mejl adresa nije u ispravnom formatu');
@@ -77,10 +144,20 @@
         if (strlen($lastName)>31)
             $user->appendError('Prezime je predugo, nadamo se da nisi ti: Wolfeschlegelsteinhausenbergerdorff');
 
+        if(empty($radios))
+            $user->appendError('Neko od radio polja mora biti selektovano');
+        
+
+        paswordsChecker($password,$passwordAgain,$user);
+        
         if(!$user->isEmptyErrors())
             return false;
 
-        if(!($uID=$user->insertData($username,$password,$mail,$firstName,$lastName)))
+        foreach($radios as $value)
+            if($value)
+                $userType=$value;
+
+        if(!($uID=$user->insertData($username,$password,$mail,$firstName,$lastName,$userType)))
         {
             $user->appendError('Greska na serveru, pokusajte ponovo :(');
             return false;
@@ -98,12 +175,7 @@
         if (!$user->checkCurrentPass($currPass,$uID))
             $user->appendError('Neispravna trenutna sifra');
 
-
-        if (strlen($newPass)<6)
-            $user->appendError('Nedovoljno dugacka sifra');
-
-        if ($newPass !== $newPassAgain)
-            $user->appendError('Sifra i ponovljena sifra se razlikuju');
+        paswordsChecker($newPass,$newPassAgain,$user);
 
         if(!$user->isEmptyErrors())
             return false;
@@ -167,6 +239,112 @@
             echo "<h1>Acces forbbiden!</h1>";
             //header("Location: ./index.php");
             exit();
+        }
+    }
+
+    function fillTheContainer(&$container)
+    {
+        $requests= new Request();
+        if ($_SESSION['userType'] === 1)
+        {
+            $container->setRequests($requests->fetchRequestsMentor($_SESSION['uID']));
+        }
+        else
+        {
+            $container->setRequests($requests->fetchRequestsUser($_SESSION['uID']));
+        }
+    }
+
+    function updateContainer(&$container)
+    {
+        $requests= new Request();
+        if ($_SESSION['userType'] === 1)
+        {
+            $container->setRequests($requests->fetchRequestsMentor($_SESSION['uID']));
+        }
+        else
+        {
+            $container->setRequests($requests->fetchRequestsUser($_SESSION['uID']));
+        }
+    }
+
+    function displayBasicUserInfoNotificationsButtons($data,$userType)
+    {
+        echo '<table border="1" cellpadding="5" style="border-collapse:collapse">';
+                    
+        echo "<tr><th>Korisnicko ime</th><th>Ime</th><th>prezime</th><th>mejl</th><th></th></tr>";
+        foreach($data as $row)
+        {
+            echo "<tr>";
+            echo "<td>".$row['username']."</td>";
+            echo "<td>".$row['firstName']."</td>";
+            echo "<td>".$row['lastName']."</td>";
+            echo "<td>".$row['mail']."</td>";
+            if($userType ===1 )
+            {
+                echo "<td> <input type='button' id=".$row['userId']." value='Odobri zahtev' onclick='approve(this.id)' class='button' ></td>";
+            }
+            else
+            {
+                echo "<td> <input type='button' id=".$row['userId']." value='Posalji zahtev' onclick='send(this.id)' class='button' ></td>";
+            }
+            echo "</tr>";
+        }
+        echo '</table>';
+    }
+
+    function displayBasicUserInfoNotificationsNoButtons($data)
+    {
+        echo '<table border="1" cellpadding="5" style="border-collapse:collapse">';
+                    
+        echo "<tr><th>Korisnicko ime</th><th>Ime</th><th>prezime</th><th>mejl</th></tr>";
+        foreach($data as $row)
+        {
+            echo "<tr>";
+            echo "<td>".$row['username']."</td>";
+            echo "<td>".$row['firstName']."</td>";
+            echo "<td>".$row['lastName']."</td>";
+            echo "<td>".$row['mail']."</td>";
+            echo "</tr>";
+        }
+        echo '</table>';
+    }
+
+    function displayNotificationsForUser($dataWaiting,$dataApproved)
+    {
+        if (empty($dataWaiting) && empty($dataApproved))
+            echo "<h1>There are no sent requests!</h1>";
+        else
+        {
+            if(!empty($dataWaiting))
+            {
+                echo "<h1>Sent requests waiting for approval:</h1>";
+                displayBasicUserInfoNotificationsNoButtons($dataWaiting);
+            }
+            if(!empty($dataApproved))
+            {
+                echo "<h1>Approved sent requests:</h1>";
+                displayBasicUserInfoNotificationsNoButtons($dataApproved);
+            }
+        }
+    }
+
+    function displayNotificationsForMentor($dataWaiting,$dataApproved)
+    {
+        if (empty($dataWaiting) && empty($dataApproved))
+            echo "<h1>There are no recieved requests :(</h1>";
+        else
+        {
+            if(!empty($dataWaiting))
+            {
+                echo "<h1>Requests waiting for your approval:</h1>";
+                displayBasicUserInfoNotificationsButtons($dataWaiting,1);
+            }
+            if(!empty($dataApproved))
+            {
+                echo "<h1>Approved requests:</h1>";
+                displayBasicUserInfoNotificationsNoButtons($dataApproved);
+            }
         }
     }
 ?>

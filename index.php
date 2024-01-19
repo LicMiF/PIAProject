@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-    require_once "./core/userDB.php";
     require_once "./core/utilities.php";
     include_once "./includes/head.php";
 ?>
 <body>
     <?php
-        include_once "./includes/header.html";
         include_once "./includes/topnav.php";
+        include_once "./includes/header.html";
+        if(isset($_SESSION['uID']))
+        {
+            $user=new User();
+            $data=$user->getUserData($_SESSION['uID']);
+            $_SESSION['userType']=$data['userType'];
+            $container=new Container();
+            fillTheContainer($container);
+            $_SESSION['container']=&$container;
+        }
     ?>
 
     <div class="row">
@@ -26,10 +34,8 @@
             <div class="card">
                 <h2>Pocetna</h2>
                 <?php
-                    $user=new User();
                     if(isset($_SESSION['uID']))
                     {
-                        $data=$user->getUserData($_SESSION['uID']);
                         echo '<h2> Hello '.$data['firstName'].'</h2>';
                     ?>
                     <a href="./changePass.php">Promeni sifru</a> </br>

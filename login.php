@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-    require_once "./core/userDB.php";
     require_once "./core/utilities.php";
     include_once "./includes/head.php";
 
-    include_once "./includes/header.html";
     include_once "./includes/topnav.php";
+    include_once "./includes/header.html";
 ?>
 <body>
     <div class="row">
@@ -46,6 +45,7 @@
     $action=$_SERVER['PHP_SELF']; $method='post';
     renderForm($fields,$types,$submit,$action,$method);
 ?>    
+            <p>Nemas kreiran nalog? <a href="./register.php">Registruj se</a></p>
             </div>
         </div>
     </div>

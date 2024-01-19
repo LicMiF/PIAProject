@@ -8,7 +8,7 @@ class User{
     const db='project';
 
 
-    private $conn;
+    protected $conn;
     private $errors=array();
 
     function __construct()
@@ -130,13 +130,13 @@ class User{
         }
     }
 
-    public function insertData($username, $password, $mail, $firstName, $lastName)
+    public function insertData($username, $password, $mail, $firstName, $lastName, $userType)
     {
         try {
             $pass=$this->hashPassword($password);
             $emailHash=$this->hashMail($mail);
-            $statement = $this->conn->prepare("INSERT INTO users (username, password, mail, firstName, lastName, emailHash) VALUES (?, ?, ?, ?, ?, ?)");
-            $statement->execute([$username, $pass, $mail, $firstName, $lastName, $emailHash]);
+            $statement = $this->conn->prepare("INSERT INTO users (username, password, mail, firstName, lastName, emailHash, userType) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $statement->execute([$username, $pass, $mail, $firstName, $lastName, $emailHash, $userType]);
             return $this->conn->lastInsertID();
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -146,6 +146,7 @@ class User{
             return false;
         }
     }
+
     public function userExists($username)
     {
         try{
@@ -163,6 +164,7 @@ class User{
             return false;
         }
     }
+
     public function mailExists($mail)
     {
         try{
@@ -180,14 +182,17 @@ class User{
             return false;
         }
     }
+
     public function appendError($err)
     {
         $this->errors[]=$err;
     }
+
     public function isEmptyErrors()
     {
         return empty($this->errors);
     }
+
     public function displayErrors()
     {
         $str= "<ul>";
@@ -196,16 +201,6 @@ class User{
         $str.= "</ul>";
         return $str;
     }
-    /*public function hashPassword($password)
-    {
-        echo "entered";
-        $salt= generateUniqueSalt();
-        echo "entered";
-        $combined=$password.$salt;
-
-        $hash=password_hash($password,PASSWORD_ARGON2ID);
-        return array($hash, $salt);
-    }*/
 
     public function hashPassword($password)
     {
@@ -215,6 +210,38 @@ class User{
     public function hashMail($mail)
     {
         return password_hash($mail.microtime(),PASSWORD_ARGON2ID);
+    }
+
+    public function getAllUserData()
+    {
+        try{
+            $statement=$this->conn->prepare("SELECT * FROM users WHERE userType=0");
+            $statement->execute();
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            return $res;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function getAllMentorData()
+    {
+        try{
+            $statement=$this->conn->prepare("SELECT * FROM users WHERE userType=1");
+            $statement->execute();
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            return $res;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
     }
 }
 

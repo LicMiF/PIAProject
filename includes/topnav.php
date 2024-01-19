@@ -1,7 +1,9 @@
 <div class="topnav">
-        <a href="#">Profil</a>
+        <a href="../test.php">Profil</a>
         <a href="#">Stranica</a>
         <a href="#">Kontakt</a>
+        <a href="../notifications.php">Notifikacije</a>
+        <a href="../notifications.php" style="float:right"><strong>Razmena vestina i znanja</strong></a>
         <div class="searcharea">
                 <input placeholder="search here...." type="text" class="searchbox" />
         </div>
