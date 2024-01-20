@@ -37,8 +37,8 @@
 
         if($uID=validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName,$user))
         {
-            echo "Here";    
-            $_SESSION['uID']=$data['userId'];
+            //echo "Here";    
+            $_SESSION['uID']=$uID;
             header ("Location: index.php");
             exit();
         }

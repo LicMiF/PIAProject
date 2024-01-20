@@ -61,6 +61,10 @@
     padding:5px;
     outline:none;
     border-radius: 15px/15px;
+  }
+
+.search-button1 {
+  float: right;
 }
 
 /*Form style*/

@@ -6,7 +6,9 @@
                 <input placeholder="search here...." type="text" class="searchbox" />
         </div>
         <?php
-                if(isset($_SESSION['uID']))
-                        echo "<a href='./logout.php' style='float:right'>Odjava</a>" 
+                if(isset($_SESSION['uID'])){
+                        echo "<a href='./logout.php' style='float:right'>Odjava</a>" ;
+                        echo "<a href='chat.php' style='float::right'>Poruke</a>";
+                }        
         ?>
 </div>

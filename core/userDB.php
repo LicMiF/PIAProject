@@ -148,38 +148,50 @@ class User{
     }
     public function userExists($username)
     {
-        try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE username=?");
-            $statement->execute([$username]);
-            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
-            if(!$res)
-                return false;
-            return true;
+    try {
+        $statement = $this->conn->prepare("SELECT * FROM users WHERE username=?");
+
+        $statement->execute([$username]);
+
+        $res=($statement->fetchALL(PDO::FETCH_ASSOC));
+
+        
+        if (!empty($res[0])) {
+            return true;  
         }
-        catch(PDOException $e)
-        {
-            echo "Error";
-            echo $e->getMessage();
-            return false;
-        }
+
+        return false;     
+    } catch (PDOException $e) {
+        
+        echo "Error";
+        echo $e->getMessage();
+        return false;  
     }
+    }
+
     public function mailExists($mail)
     {
-        try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE mail=?");
+        try {
+            $statement = $this->conn->prepare("SELECT * FROM users WHERE mail=?");
+
             $statement->execute([$mail]);
-            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
-            if(is_null($res))
-                return false;
-            return true;
-        }
-        catch(PDOException $e)
-        {
+
+            // Fetch all rows from the result set as an associative array
+            $res=($statement->fetchALL(PDO::FETCH_ASSOC));
+            // Check if the result set is not empty
+            if (!empty($res[0])) {
+                return true;  // Email exists
+            }
+
+            return false;     // Email does not exist
+        } catch (PDOException $e) {
+            // If there's an exception (error) during the execution of the database operation, catch it and display an error message
             echo "Error";
             echo $e->getMessage();
-            return false;
+            return false;  // Return false to indicate an error or failure
         }
     }
+
     public function appendError($err)
     {
         $this->errors[]=$err;
@@ -215,6 +227,94 @@ class User{
     public function hashMail($mail)
     {
         return password_hash($mail.microtime(),PASSWORD_ARGON2ID);
+    }
+
+    public function showMyMessages($id,$target){
+        try{
+            $statement = $this->conn->prepare("SELECT * FROM users_chat WHERE sender_id=? AND receiver_id=?");
+            $statement->execute([$id,$target]);
+
+            $res=($statement->fetchALL(PDO::FETCH_ASSOC));
+            if (!empty($res[0])){
+                return $res;
+            }
+        }catch(PDOException $e) {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+
+    }
+    public function showYourMessages($id,$tvojId){
+        try{
+            $statement = $this->conn->prepare("SELECT * FROM users_chat WHERE receiver_id=? AND sender_id=?");
+            $statement->execute([$id,$tvojId]);
+
+            $res=($statement->fetchALL(PDO::FETCH_ASSOC));
+            if (!empty($res[0])){
+                return $res;
+            }
+        }catch(PDOException $e) {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function showOtherUsers($id){
+        try{
+            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId!=?");
+            $statement->execute([$id]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            if (!empty($res[0])){
+                return $res;
+            }
+        }catch(PDOException $e) {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+    public function updateMessage($senderId,$receiverId,$messageContent,$status,$timestamp){
+        try {
+            $statement = $this->conn->prepare("INSERT INTO users_chat (sender_id, receiver_id, msg_content, msg_status, msg_date) VALUES ( ?, ?, ?, ?, ?)");
+            $statement->execute([$senderId, $receiverId, $messageContent, $status, $timestamp]);
+            return $this->conn->lastInsertID();
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function getUsernameById($id){
+        try{    
+            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId=?");
+            $statement->execute([$id]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            if(!empty($res[0])){
+                return $res[0];
+            }
+
+        }catch(PDOException $e) {
+            echo "Error: ". $e->getMessage();
+        }
+    }
+
+    public function getUserIdByUsername($username){
+        try{
+            $statement=$this->conn->prepare("SELECT * FROM users WHERE username=?");
+            $statement->execute([$username]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            if(!empty($res[0])){
+                return $res[0];
+            }
+
+        }catch(PDOException $e) {
+            echo "Error". $e->getMessage();
+        }
     }
 }
 
