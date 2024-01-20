@@ -1,8 +1,16 @@
 <div class="topnav">
-        <a href="../test.php">Profil</a>
-        <a href="#">Stranica</a>
-        <a href="#">Kontakt</a>
+        <?php
+                if(isset($_SESSION['uID']))
+                {
+        ?>
+        <a href="#" onclick="viewProfile(<?=$_SESSION['uID']?>,<?=$_SESSION['userType']?>)">Profile</a>
         <a href="../notifications.php">Notifikacije</a>
+        <?php
+                }
+        ?>
+        <a href="../test.php">test</a>
+        <a href="../index1.php">Komentari</a>
+        <a href="../index2.php">index2</a>
         <a href="../notifications.php" style="float:right"><strong>Razmena vestina i znanja</strong></a>
         <div class="searcharea">
                 <input placeholder="search here...." type="text" class="searchbox" />

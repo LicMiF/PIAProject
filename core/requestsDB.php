@@ -46,7 +46,16 @@ class Request extends User{
     public function addRequest($uId,$mId)
     {
         try{
-            $statement=$this->conn->prepare("INSERT INTO requests (senderId,recieverId) values(?, ?)");
+            $whereConditions=array('senderId','recieverId');
+            $statement=$statement=$this->conn->prepare($this->generateAllSelectionQueryAndWhere('requests',$whereConditions));
+            $statement->execute([$uId,$mId]);
+            $row=$statement->fetchALL(PDO::FETCH_ASSOC);
+
+            if($row)
+                return true;
+
+            $columns=array('senderId','recieverId');
+            $statement=$this->conn->prepare($this->generateInsertionQuery('requests',$columns));
             $statement->execute([$uId,$mId]);
             return true;
         }

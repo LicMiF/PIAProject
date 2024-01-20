@@ -47,21 +47,21 @@
             $knowledge=$_POST['knowledge'];
             $yearExp=$_POST['yearExp'];
         }
+        echo $userType;
         if($uID=validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,$user))
         {
-            $_SESSION['uID']=$uID;
             //PREPROCESS SPECIFIC DATA?
             if($userType===0)
             {
                 $columns=array('userId','education','interests');
-                $values=array($uID,$interests,$education);
-                $user->insertDataTest($columns,$values,'userSpecific');
+                $values=array($uID,$education,$interests);
+                $user->insertDataGeneric($columns,$values,'userSpecific');
             }
             if($userType===1)
             {
                 $columns=array('userId','yearExp','knowledge');
                 $values=array($uID,$yearExp,$knowledge);
-                $user->insertDataTest($columns,$values,'mentorSpecific');
+                $user->insertDataGeneric($columns,$values,'mentorSpecific');
             }
             /*Add mail verif notification*/
             header ("Location: index.php");
@@ -77,7 +77,7 @@
     $fields=array('Korisničko ime*'=>'username','Šifra*'=>'checkPass','Šifra ponovo*'=>'passwordAgain','Mejl adresa*'=>'mail','Ime*'=>'firstName','Prezime'=>'lastName','Vestine*'=>'skills');
     $types=array('text','password','password','text','text','text');
 
-    $studentSpecific=array('Interesovanja'=>'interests','Obrazovanje'=>'Education');
+    $studentSpecific=array('Interesovanja'=>'interests','Obrazovanje'=>'education');
     $mentorSpecific=array('Znanje'=>'knowledge','Godne iskustva'=>'yearExp');
 
     $submit=array('registerStudent','registerMentor');

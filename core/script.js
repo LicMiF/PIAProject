@@ -1,13 +1,45 @@
-function send(id)
-{
-    window.location="send.php?id="+id;
+function send(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('send.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        console.log('Request successful:', data);
+        // Handle the response if needed
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
 }
 
-function approve(id)
-{
-    window.location="approve.php?id="+id;
+function approve(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('approve.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
 }
-
 
 
 function showForm(userType) {
@@ -36,3 +68,53 @@ function showForm(userType) {
         mentorBtn.style.color = "#fff";
     }
 }
+
+
+
+    function viewProfile(id, userType)
+    {
+
+        var postData = {
+            profileId: id,
+            userType: userType,
+        };
+
+        var urlEncodedData = new URLSearchParams(postData).toString();
+
+        var phpScriptUrl = 'profile.php';
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = phpScriptUrl;
+
+        for (var key in postData) {
+            if (postData.hasOwnProperty(key)) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = postData[key];
+                form.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+
+    function maintainScrollPosition()
+    {
+        // Get the current scroll position
+        var scrollPosition = window.scrollY
+
+        // Store the scroll position in sessionStorage
+        sessionStorage.setItem('scrollPosition', scrollPosition);
+
+        // To retrieve the scroll position after a page refresh
+        var storedScrollPosition = sessionStorage.getItem('scrollPosition');
+
+        // If there's a stored scroll position, scroll to that position
+        if (storedScrollPosition !== null) {
+            window.scrollTo(0, storedScrollPosition);
+        }
+    }

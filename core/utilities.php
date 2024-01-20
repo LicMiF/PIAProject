@@ -220,7 +220,7 @@
         $emailHash=$user->hashMail($mail);
         $values=array($username,$pass,$mail,$firstName,$lastName,$emailHash,$userType,$skills);
         
-        if(!($uID=$user->insertDataTest($columns,$values,'users')))
+        if(!($uID=$user->insertDataGeneric($columns,$values,'users')))
         {
             $user->appendError('Greska na serveru, pokusajte ponovo :(');
             return false;
@@ -286,6 +286,39 @@
 
     }
 
+
+    function validateComments($body,$senderId,$recieverId,&$user)
+    {
+        
+        $comment = trim($body);
+
+        if (empty($comment)) 
+            $user->appendError('Komentari ne mogu biti prazni!');
+        
+        $minLength = 10;
+        $maxLength = 2000;
+    
+        $commentLength = strlen($comment);
+    
+        if ($commentLength < $minLength || $commentLength > $maxLength) 
+            $user->appendError("Komentari moraju biti izmedju $minLength i $maxLength karaktera dugi");
+    
+        if(!$user->isEmptyErrors())
+            return false;
+
+        $columns=array('senderId','recieverId','body');
+        $values=array($senderId,$recieverId,$comment);
+
+        if(!($uID=$user->insertDataGeneric($columns,$values,'comments')))
+        {
+            $user->appendError('Greska na serveru, pokusajte ponovo :(');
+            return false;
+        }
+        return true;
+
+    }
+
+
     function forbidAccesLogged()
     {
         if(isset($_SESSION['uID']))
@@ -304,6 +337,7 @@
             exit();
         }
     }
+
 
     function fillTheContainer(&$container)
     {
@@ -409,5 +443,168 @@
                 displayBasicUserInfoNotificationsNoButtons($dataApproved);
             }
         }
+    }
+
+    function displayCommentsSection($profileId,&$user)
+    {
+        $comments=$user->selectDataGeneric('comments',array('recieverId'),array($profileId));
+
+        foreach ($comments as $comment)
+        {
+            echo '<div class="comment">';
+
+            $senderData=$user->getUserData($comment['senderId']);
+
+            echo "  <div class='comment-header'>
+                        <div class='user-image'>
+                            <img src='./uploads/img2.jpg' alt='User Icon'>
+                        </div>
+                        <span>".$senderData['firstName']." ".$senderData['lastName']."</span>
+                    </div>";//Add $senderData image
+
+            echo "  <div class='comment-body'>
+                        ".$comment['body']."
+                    </div>";
+
+
+            $dateTime = new DateTime($comment['timestamp']);
+            $formattedDate = $dateTime->format('Y-m-d H:i:s');
+
+            echo "  <div class='comment-footer'>
+                        <div class='like-btns'>
+                            <i class='fas fa-thumbs-up like-btn'></i>
+                            <i class='fas fa-thumbs-down dislike-btn'></i>
+                        </div>
+                        <span>Posted on: ".$formattedDate."</span>
+                    </div>";
+            
+            echo ' </div>';
+        }
+    }
+
+    function displayCommentForm($profileId,$action,$method,$userType,&$user)
+    {
+        echo "
+        <div class='comment-form'>
+            <form action='$action' method='$method' id='commentFormId'>
+                <textarea name='commentSection' style='height:70px;' placeholder='Unesite vas komentar...' class='textField'></textarea>
+                <input type='hidden' name='profileId' value='$profileId'>
+                <input type='hidden' name='userType' value='$userType'>
+                <input type='submit' name='postComment' value='Komentarisi' class='button'>
+            
+            </form>
+        </div>";
+    }
+
+    function displayUserProfileDataUser($profileId,&$user)
+    {
+
+        $userData=$user->getUserData($profileId);
+        $userSpecific=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
+
+        echo "  <div class='profile-header'>
+                    <div class='profile-image'>
+                        <img src='./uploads/img1.jpg' alt='Profile Picture'>
+                    </div>
+                    <div class='profile-username'>".$userData['firstName']." ".$userData['lastName']."</div>
+                    <div class='profile-bio'>Web Developer | Nature Lover | Coffee Enthusiast</div>
+                </div>";
+
+        echo "  <div class='profile-section'>
+                    <h2>Informacije o korisniku</h2>
+                    <div class='profile-details'>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Korisnicko Ime</div>
+                            <div>".$userData['username']."</div>
+                        </div>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Ime</div>
+                            <div>".$userData['firstName']."</div>
+                        </div>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Prezime</div>
+                            <div>".$userData['lastName']."</div>
+                        </div>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Email</div>
+                            <div>".$userData['mail']."</div>
+                        </div>
+                    </div>
+                </div>                                      ";
+        echo "  <div class='profile-section'>
+                    <h2>Interesovanja</h2>
+                    <div class='profile-details'>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'> Interesovanja</div>
+                            <div>".$userSpecific['interests']."</div>
+                        </div>
+                    </div>
+                </div>                          ";
+        echo "  <div class='profile-section'>
+                    <h2>Obrazovanje</h2>
+                    <div class='profile-details'>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Obrazovanje</div>
+                            <div>".$userSpecific['education']."</div>
+                        </div>
+                    </div>
+                </div>                          ";
+        
+    }
+
+    function displayUserProfileDataMentor($profileId,&$user)
+    {
+
+        $userData=$user->getUserData($profileId);
+        $mentorSpecific=$user->selectDataGeneric('mentorSpecific',array('userId'),array($profileId))[0];
+
+        echo "  <div class='profile-header'>
+                    <div class='profile-image'>
+                        <img src='./uploads/img1.jpg' alt='Profile Picture'>
+                    </div>
+                    <div class='profile-username'>".$userData['firstName']." ".$userData['lastName']."</div>
+                    <div class='profile-bio'>Web Developer | Nature Lover | Coffee Enthusiast</div>
+                </div>";
+
+        echo "  <div class='profile-section'>
+                    <h2>Informacije o korisniku</h2>
+                    <div class='profile-details'>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Korisnicko Ime</div>
+                            <div>".$userData['username']."</div>
+                        </div>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Ime</div>
+                            <div>".$userData['firstName']."</div>
+                        </div>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Prezime</div>
+                            <div>".$userData['lastName']."</div>
+                        </div>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Email</div>
+                            <div>".$userData['mail']."</div>
+                        </div>
+                    </div>
+                </div>                                      ";
+        echo "  <div class='profile-section'>
+                    <h2>Znanje</h2>
+                    <div class='profile-details'>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'> Znanje</div>
+                            <div>".$mentorSpecific['knowledge']."</div>
+                        </div>
+                    </div>
+                </div>                          ";
+        echo "  <div class='profile-section'>
+                    <h2>Godine iskustva</h2>
+                    <div class='profile-details'>
+                        <div class='detail-item'>
+                            <div class='detail-item-header'>Godine iskustva</div>
+                            <div>".$mentorSpecific['yearExp']."</div>
+                        </div>
+                    </div>
+                </div>                          ";
+        
     }
 ?>

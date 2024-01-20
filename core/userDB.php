@@ -132,13 +132,12 @@ class User{
         }
     }
 
-    public function insertData($username, $password, $mail, $firstName, $lastName, $userType)
+
+    public function insertDataGeneric($columns,$values,$table)
     {
         try {
-            $pass=$this->hashPassword($password);
-            $emailHash=$this->hashMail($mail);
-            $statement = $this->conn->prepare("INSERT INTO users (username, password, mail, firstName, lastName, emailHash, userType) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $statement->execute([$username, $pass, $mail, $firstName, $lastName, $emailHash, $userType]);
+            $statement = $this->conn->prepare($this->generateInsertionQuery($table,$columns));
+            $statement->execute($values);
             return $this->conn->lastInsertID();
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -149,12 +148,22 @@ class User{
         }
     }
 
-    public function insertDataTest($columns,$values,$table)
+    public function selectDataGeneric($table,$cols=NULL,$whereConds=NULL)
     {
         try {
-            $statement = $this->conn->prepare($this->generateInsertionQuery($table,$columns));
-            $statement->execute($values);
-            return $this->conn->lastInsertID();
+            if(!$whereConds)
+            {
+                $statement = $this->conn->prepare($this->generateAllSelectionQueryAndWhere($table));
+                $statement->execute();
+            }
+            else
+            {
+                $statement = $this->conn->prepare($this->generateAllSelectionQueryAndWhere($table,$cols));
+                $statement->execute($whereConds);
+            }
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            return $res;
+
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             return false;
@@ -306,6 +315,26 @@ class User{
         if($idNotation)
             $query.= " WHERE $idNotation=?";
         
+        return $query;
+    }
+
+    public function generateAllSelectionQueryAndWhere($tableName,$idNotation=NULL)
+    {
+        $query="SELECT * FROM $tableName";
+
+        if($idNotation)
+        {
+            $query.= " WHERE";
+            for($i=0; $i<count($idNotation ); $i++)
+            {
+                if ($i==(count($idNotation )-1))
+                {
+                    $query.= " ". $idNotation[$i]."=?";
+                    continue;
+                }
+                $query.= " ". $idNotation[$i]."=? and";
+            }
+        }
         return $query;
     }
 }

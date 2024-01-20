@@ -307,3 +307,154 @@
 .show-form {
   display: block;
 }
+
+
+
+/*Comment section styling*/
+
+.comment {
+  margin-bottom: 2%;
+  padding: 2%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #04473e;
+  position: relative;
+}
+
+.comment-header {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.2em;
+  display: flex;
+  align-items: center;
+}
+
+.user-image img {
+  width: 30px; /* Adjust the width as needed */
+  height: 30px; /* Adjust the height as needed */
+  border-radius: 50%;
+  margin-right: 0.5em;
+}
+
+.comment-body {
+  font-size: 0.9em;
+  color: white;
+  margin-bottom: 0.5em;
+}
+
+.comment-footer {
+  margin-top: 0.5em;
+  font-size: 0.8em;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.like-btns {
+  display: flex;
+  gap: 0.5em;
+}
+
+.like-btn,
+.dislike-btn {
+  cursor: pointer;
+  font-size: 1em;
+  color: #888;
+}
+
+.like-btn.active,
+.dislike-btn.active {
+  color: #3498db;
+}
+.comment-form{
+  margin-top: 10%;
+  margin-bottom: 2%;
+  position: relative;
+}
+.comment-form textarea {
+  width: 100%;
+  padding: 0.5em;
+  font-size: 1.1em;
+  margin-top: 0.7em;   
+  margin-bottom: 0.5em;   
+  resize: none;
+  color: #04473e;
+
+}
+
+@media screen and (max-width: 600px) {
+
+  .comment {
+      padding: 5%;
+  }
+}
+
+
+
+
+/*Profile related style*/
+
+.profile-container {
+  width: 100%;
+  margin: 0;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 2%;
+  border-radius: 10px;
+}
+
+.profile-container h2{
+  text-align: center;
+  color: #04473e;
+}
+
+.profile-header {
+  text-align: center;
+}
+
+.profile-image img {
+  width: 100px; /* Adjust the width as needed */
+  height: 100px; /* Adjust the height as needed */
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.profile-username {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #04473e;
+  margin-bottom: 10px;
+}
+
+.profile-bio {
+  font-size: 1em;
+  color: #05554a;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-section {
+  margin-top: 20px;
+}
+
+.profile-details {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.9em;
+  color: #05554a;
+}
+
+.detail-item {
+  text-align: center;
+}
+.detail-item-header{
+  font-weight: bold;
+}
+
+@media screen and (max-width: 600px) {
+  .profile-container {
+      width: 90%;
+  }
+}
