@@ -33,7 +33,7 @@ class User{
     {
         try{
             $username=trim($username);
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE username=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','username'));
             $statement->execute([$username]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             if (empty($res))
@@ -53,7 +53,7 @@ class User{
     public function checkCurrentPass($password,$uID)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','userId'));
             $statement->execute([$uID]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
 
@@ -71,7 +71,7 @@ class User{
     {
         try{
             $pass=$this->hashPassword($password);
-            $statement=$this->conn->prepare("UPDATE users SET password=? WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateUpdateQuery('users','password','userId'));
             $statement->execute([$pass,$uID]);
             return true;
         }
@@ -86,7 +86,9 @@ class User{
     public function updateInfo($mail,$firstName ,$lastName,$uID)
     {
         try{
-            $statement=$this->conn->prepare("UPDATE users SET mail=?, firstName=?,lastName=? WHERE userId=?");
+
+            $columns=array("mail","firstName","lastName");
+            $statement=$this->conn->prepare($this->generateUpdateQuery('users',$columns,'userId'));
             $statement->execute([$mail,$firstName ,$lastName,$uID]);
             return true;
         }
@@ -101,7 +103,7 @@ class User{
     public function getUserMail($uID)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','userId'));
             $statement->execute([$uID]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             return $res['mail'];
@@ -117,7 +119,7 @@ class User{
     public function getUserData($uID)
     {   
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','userId'));
             $statement->execute([$uID]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             return $res;
@@ -147,10 +149,25 @@ class User{
         }
     }
 
+    public function insertDataTest($columns,$values,$table)
+    {
+        try {
+            $statement = $this->conn->prepare($this->generateInsertionQuery($table,$columns));
+            $statement->execute($values);
+            return $this->conn->lastInsertID();
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
     public function userExists($username)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE username=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','username'));
             $statement->execute([$username]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             if(!$res)
@@ -168,7 +185,7 @@ class User{
     public function mailExists($mail)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE mail=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','mail'));
             $statement->execute([$mail]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             if(is_null($res))
@@ -242,6 +259,54 @@ class User{
             echo $e->getMessage();
             return false;
         }
+    }
+
+
+    /*Helper functions*/
+
+    public function generateUpdateQuery($tableName,$columns,$idNotation)
+    {
+        $columnsStr='';
+        for($i=0; $i<count($columns); $i++)
+        {
+            if ($i==(count($columns)-1))
+            {
+                $columnsStr.=$columns[$i]."=?";
+                continue;
+            }
+            $columnsStr.=$columns[$i]."=?, ";
+        }
+
+        return "UPDATE $tableName SET " .$columnsStr. " WHERE $idNotation=?";
+
+    }
+
+
+    public function generateInsertionQuery($tableName,$columns)
+    {
+        $columnsStr=implode(", ",$columns);
+        $valuesStr='';
+        for($i=0; $i<count($columns); $i++)
+        {
+            if ($i==(count($columns)-1))
+            {
+                $valuesStr.="?";
+                continue;
+            }
+            $valuesStr.="?, ";
+        }
+        return "INSERT INTO $tableName (".$columnsStr.") VALUES(".$valuesStr.")";
+
+    }
+
+    public function generateAllSelectionQuery($tableName,$idNotation=NULL)
+    {
+        $query="SELECT * FROM $tableName";
+
+        if($idNotation)
+            $query.= " WHERE $idNotation=?";
+        
+        return $query;
     }
 }
 

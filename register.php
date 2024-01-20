@@ -25,7 +25,7 @@
             <div class="card">
 <?php
     $user = new User();
-    if(isset($_POST['register']))
+    if(isset($_POST['registerStudent']) || isset($_POST['registerMentor']))
     {
         $username=$_POST['username'];
         $password=$_POST['checkPass'];
@@ -33,11 +33,36 @@
         $mail=$_POST['mail'];
         $firstName=$_POST['firstName'];
         $lastName=$_POST['lastName'];
-        $radios=$_POST['radio'];
+        $skills=$_POST['skills'];
 
-        if($uID=validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName,$radios,$user))
+        if(isset($_POST['registerStudent']))
         {
-            $_SESSION['uID']=$data['userId'];
+            $userType=0;
+            $interests=$_POST['interests'];
+            $education=$_POST['education'];
+        }
+        if(isset($_POST['registerMentor']))
+        {
+            $userType=1;
+            $knowledge=$_POST['knowledge'];
+            $yearExp=$_POST['yearExp'];
+        }
+        if($uID=validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,$user))
+        {
+            $_SESSION['uID']=$uID;
+            //PREPROCESS SPECIFIC DATA?
+            if($userType===0)
+            {
+                $columns=array('userId','education','interests');
+                $values=array($uID,$interests,$education);
+                $user->insertDataTest($columns,$values,'userSpecific');
+            }
+            if($userType===1)
+            {
+                $columns=array('userId','yearExp','knowledge');
+                $values=array($uID,$yearExp,$knowledge);
+                $user->insertDataTest($columns,$values,'mentorSpecific');
+            }
             /*Add mail verif notification*/
             header ("Location: index.php");
             exit();
@@ -48,12 +73,17 @@
     echo "<h2>Registracija</h2>";
     if(!$user->isEmptyErrors())
         echo $errorstr;
-    $fields=array('Korisničko ime*'=>'username','Šifra*'=>'checkPass','Šifra ponovo*'=>'passwordAgain','Mejl adresa*'=>'mail','Ime*'=>'firstName','Prezime'=>'lastName');
-    $types=array('text','password','password','text','text','text','');
-    $radios=array('Korisnik'=>'0','Mentor'=>'1');
-    $submit=array('Registruj se'=>'register');
+
+    $fields=array('Korisničko ime*'=>'username','Šifra*'=>'checkPass','Šifra ponovo*'=>'passwordAgain','Mejl adresa*'=>'mail','Ime*'=>'firstName','Prezime'=>'lastName','Vestine*'=>'skills');
+    $types=array('text','password','password','text','text','text');
+
+    $studentSpecific=array('Interesovanja'=>'interests','Obrazovanje'=>'Education');
+    $mentorSpecific=array('Znanje'=>'knowledge','Godne iskustva'=>'yearExp');
+
+    $submit=array('registerStudent','registerMentor');
+
     $action=$_SERVER['PHP_SELF']; $method='post';
-    renderFormWithPasswordStrengthCheckAndRadios($fields,$types,$submit,$action,$method,$radios);
+    renderFormRegistrationSpecific($fields,$types,$studentSpecific,$mentorSpecific,$submit,$action,$method);
 
     echo "<script src='./core/passwordChecker.js'></script>";
 ?>    

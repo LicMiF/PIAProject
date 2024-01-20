@@ -42,7 +42,7 @@
     echo "<h2>Promena sifre</h2>";
     if(!$user->isEmptyErrors())
         echo $errorstr;
-    $fields=array('Trenutna sifra*'=>'currentPass','Nova sifra'=>'checkPass','Nova sifra ponovo*'=>'newPassAgain');
+    $fields=array('Trenutna sifra*'=>'currentPass','Nova sifra*'=>'checkPass','Nova sifra ponovo*'=>'newPassAgain');
     $types=array('password','password','password');
     $submit=array('Promeni'=>'change');
     $action=$_SERVER['PHP_SELF']; $method='post';

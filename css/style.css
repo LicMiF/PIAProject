@@ -89,13 +89,13 @@
   /* Left column */
   .leftcolumn {   
     float: left;
-    width: 75%;
+    width: 63%;
   }
   
   /* Right column */
   .rightcolumn {
     float: left;
-    width: 25%;
+    width: 37%;
     background-color: #04473e;
     padding-left: 20px;
   }
@@ -156,7 +156,7 @@
 }
 
 .label {
-  width: 25%;
+  width: 30%;
   display: flex;
   align-items: center;
   margin-right: 10px;
@@ -268,4 +268,42 @@
 .password-input:focus ~ .password-checklist{
     opacity: 1;
     transform: translateY(0);
+}
+
+
+/*Registration form specific styling*/
+.choice {
+  width: 100%;
+  margin: 10px 0px; 
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-type-btn {
+  font-size: larger;
+  flex-basis: 48%;
+  height: 45px  ;
+  padding: 10px 2px;
+  border: none;
+  cursor: pointer;
+  text-align:center;
+}
+
+#studentBtn {
+  color: white;
+  background-color: #04473e; /* Green */
+}
+
+#mentorBtn {
+  color: #04473e;
+  background-color: white; /* Blue */
+}
+
+.form-section {
+  display: none;
+}
+
+.show-form {
+  display: block;
 }

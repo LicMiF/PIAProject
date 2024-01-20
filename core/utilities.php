@@ -26,7 +26,7 @@
     /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
     function renderFormWithPasswordStrengthCheckAndRadios($fields,$types,$submit,$action,$method,$radios)
     {
-        
+
         echo "<form action=$action method=$method>";
         $counter=0;
 
@@ -83,6 +83,71 @@
     }
 
 
+    /* Values of radio are by default stored in radio[] array*/
+    /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
+    function renderFormRegistrationSpecific($fields,$types,$studentSpecific,$mentorSpecific,$submit,$action,$method)
+    {
+
+        echo '<div class="choice">';
+        
+        echo '<button id="studentBtn" class="user-type-btn" onclick="showForm(\'student\')">Student</button>';
+        echo '<button id="mentorBtn" class="user-type-btn" onclick="showForm(\'mentor\')">Mentor</button>';
+
+        echo  '</div>';
+        
+        echo "<form action=$action method=$method>";
+
+        registrationFormRenderingHelper($fields,$types);
+
+        echo '<div id="studentForm" class="form-section show-form">';
+
+        $studentTypes=array();
+        for($i=0; $i<count($studentSpecific); $i++)
+            $studentTypes[$i]='text';
+
+        registrationFormRenderingHelper($studentSpecific,$studentTypes,'Registruj se',$submit[0]);
+
+
+        echo  '</div>';
+        
+        echo '<div id="mentorForm" class="form-section">';
+
+        $mentorTypes=array();
+        for($i=0; $i<count($mentorSpecific); $i++)
+            $mentorTypes[$i]='text';
+    
+        registrationFormRenderingHelper($mentorSpecific,$mentorTypes,'Registruj se',$submit[1]);
+
+        echo  '</div>';
+
+        echo "</form>";
+        
+    }
+
+    function registrationFormRenderingHelper($fields,$types,$submitKey=NULL,$submitValue=NULL)
+    {
+        $counter=0;
+        foreach($fields as $key => $val)
+        {
+            if($val=='checkPass')
+            {
+                displayCheck($key);
+                $counter++;
+                continue;
+            }
+            echo "<div class=input>";
+            echo "<div class='label'><strong>".$key.": "."</strong></div>";
+            echo "<input type='".$types[$counter]."' name=$val placeholder='$key' class='textField'> <br/>";
+            echo "</div>";
+            $counter++;
+        }
+        if($submitKey && $submitValue)
+        {
+            echo '<br/>';
+            echo "<input type='submit' name=$submitValue value='$submitKey' class='button'><br/>";
+        }
+    }
+
     function validateLogin($username,$password, &$user)
     {   
         if(empty($username) || empty($password))
@@ -119,9 +184,9 @@
         
     }
 
-    function validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName, $radios, &$user)
+    function validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,&$user)
     {   
-        if(empty($username) || empty($password) || empty($passwordAgain) || empty($mail) || empty($firstName))
+        if(empty($username) || empty($password) || empty($passwordAgain) || empty($mail) || empty($firstName) || empty($skills))
         {
             $user->appendError('Molimo vas da popunite sva polja pored kojih stoji *');
             return false;
@@ -143,9 +208,6 @@
 
         if (strlen($lastName)>31)
             $user->appendError('Prezime je predugo, nadamo se da nisi ti: Wolfeschlegelsteinhausenbergerdorff');
-
-        if(empty($radios))
-            $user->appendError('Neko od radio polja mora biti selektovano');
         
 
         paswordsChecker($password,$passwordAgain,$user);
@@ -153,11 +215,12 @@
         if(!$user->isEmptyErrors())
             return false;
 
-        foreach($radios as $value)
-            if($value)
-                $userType=$value;
-
-        if(!($uID=$user->insertData($username,$password,$mail,$firstName,$lastName,$userType)))
+        $columns=array('username', 'password', 'mail', 'firstName', 'lastName', 'emailHash', 'userType','skills');
+        $pass=$user->hashPassword($password);
+        $emailHash=$user->hashMail($mail);
+        $values=array($username,$pass,$mail,$firstName,$lastName,$emailHash,$userType,$skills);
+        
+        if(!($uID=$user->insertDataTest($columns,$values,'users')))
         {
             $user->appendError('Greska na serveru, pokusajte ponovo :(');
             return false;
