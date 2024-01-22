@@ -10,11 +10,13 @@ body {
 
 #users-container {
     position: fixed;
-    left: 0;
+    left:0;
     max-width: 200px;
     margin: 20px;
     background-color: #ddd;
     border-radius: 5px;
+    overflow-y: scroll;  /*Add this line to enable vertical scrolling */
+    max-height: 100%;
 }
 
 #chat-container {
@@ -93,6 +95,7 @@ input[type="submit"]:hover {
 }
 .user-list {
 margin-top: 10px;
+
 }
 
 .user-link {
@@ -108,4 +111,10 @@ margin-top: 10px;
 
 .user-link:hover {
     background-color: #ccc;
+}
+
+.notification-indicator {
+    color: red;  /* Choose your preferred color */
+    font-weight: bold;
+    margin-right: 5px;  /* Adjust as needed */
 }

@@ -8,7 +8,7 @@ class User{
     const db='project';
 
 
-    private $conn;
+    protected $conn;
     private $errors=array();
 
     function __construct()
@@ -33,7 +33,7 @@ class User{
     {
         try{
             $username=trim($username);
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE username=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','username'));
             $statement->execute([$username]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             if (empty($res))
@@ -53,7 +53,7 @@ class User{
     public function checkCurrentPass($password,$uID)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','userId'));
             $statement->execute([$uID]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
 
@@ -71,7 +71,7 @@ class User{
     {
         try{
             $pass=$this->hashPassword($password);
-            $statement=$this->conn->prepare("UPDATE users SET password=? WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateUpdateQuery('users','password','userId'));
             $statement->execute([$pass,$uID]);
             return true;
         }
@@ -86,7 +86,9 @@ class User{
     public function updateInfo($mail,$firstName ,$lastName,$uID)
     {
         try{
-            $statement=$this->conn->prepare("UPDATE users SET mail=?, firstName=?,lastName=? WHERE userId=?");
+
+            $columns=array("mail","firstName","lastName");
+            $statement=$this->conn->prepare($this->generateUpdateQuery('users',$columns,'userId'));
             $statement->execute([$mail,$firstName ,$lastName,$uID]);
             return true;
         }
@@ -101,7 +103,7 @@ class User{
     public function getUserMail($uID)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','userId'));
             $statement->execute([$uID]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             return $res['mail'];
@@ -117,7 +119,7 @@ class User{
     public function getUserData($uID)
     {   
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId=?");
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','userId'));
             $statement->execute([$uID]);
             $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
             return $res;
@@ -130,13 +132,12 @@ class User{
         }
     }
 
-    public function insertData($username, $password, $mail, $firstName, $lastName)
+
+    public function insertDataGeneric($columns,$values,$table)
     {
         try {
-            $pass=$this->hashPassword($password);
-            $emailHash=$this->hashMail($mail);
-            $statement = $this->conn->prepare("INSERT INTO users (username, password, mail, firstName, lastName, emailHash) VALUES (?, ?, ?, ?, ?, ?)");
-            $statement->execute([$username, $pass, $mail, $firstName, $lastName, $emailHash]);
+            $statement = $this->conn->prepare($this->generateInsertionQuery($table,$columns));
+            $statement->execute($values);
             return $this->conn->lastInsertID();
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -146,49 +147,65 @@ class User{
             return false;
         }
     }
+
+    public function selectDataGeneric($table,$cols=NULL,$whereConds=NULL)
+    {
+        try {
+            if(!$whereConds)
+            {
+                $statement = $this->conn->prepare($this->generateAllSelectionQueryAndWhere($table));
+                $statement->execute();
+            }
+            else
+            {
+                $statement = $this->conn->prepare($this->generateAllSelectionQueryAndWhere($table,$cols));
+                $statement->execute($whereConds);
+            }
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            return $res;
+
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
     public function userExists($username)
     {
-    try {
-        $statement = $this->conn->prepare("SELECT * FROM users WHERE username=?");
-
-        $statement->execute([$username]);
-
-        $res=($statement->fetchALL(PDO::FETCH_ASSOC));
-
-        
-        if (!empty($res[0])) {
-            return true;  
+        try{
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','username'));
+            $statement->execute([$username]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+            if(!$res)
+                return false;
+            return true;
         }
-
-        return false;     
-    } catch (PDOException $e) {
-        
-        echo "Error";
-        echo $e->getMessage();
-        return false;  
-    }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
     }
 
     public function mailExists($mail)
     {
-        try {
-            $statement = $this->conn->prepare("SELECT * FROM users WHERE mail=?");
-
+        try{
+            $statement=$this->conn->prepare($this->generateAllSelectionQuery('users','mail'));
             $statement->execute([$mail]);
-
-            // Fetch all rows from the result set as an associative array
-            $res=($statement->fetchALL(PDO::FETCH_ASSOC));
-            // Check if the result set is not empty
-            if (!empty($res[0])) {
-                return true;  // Email exists
-            }
-
-            return false;     // Email does not exist
-        } catch (PDOException $e) {
-            // If there's an exception (error) during the execution of the database operation, catch it and display an error message
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+            if(is_null($res))
+                return false;
+            return true;
+        }
+        catch(PDOException $e)
+        {
             echo "Error";
             echo $e->getMessage();
-            return false;  // Return false to indicate an error or failure
+            return false;
         }
     }
 
@@ -196,10 +213,12 @@ class User{
     {
         $this->errors[]=$err;
     }
+
     public function isEmptyErrors()
     {
         return empty($this->errors);
     }
+
     public function displayErrors()
     {
         $str= "<ul>";
@@ -208,16 +227,6 @@ class User{
         $str.= "</ul>";
         return $str;
     }
-    /*public function hashPassword($password)
-    {
-        echo "entered";
-        $salt= generateUniqueSalt();
-        echo "entered";
-        $combined=$password.$salt;
-
-        $hash=password_hash($password,PASSWORD_ARGON2ID);
-        return array($hash, $salt);
-    }*/
 
     public function hashPassword($password)
     {
@@ -227,6 +236,106 @@ class User{
     public function hashMail($mail)
     {
         return password_hash($mail.microtime(),PASSWORD_ARGON2ID);
+    }
+
+    public function getAllUserData()
+    {
+        try{
+            $statement=$this->conn->prepare("SELECT * FROM users WHERE userType=0");
+            $statement->execute();
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            return $res;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function getAllMentorData()
+    {
+        try{
+            $statement=$this->conn->prepare("SELECT * FROM users WHERE userType=1");
+            $statement->execute();
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            return $res;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+
+    /*Helper functions*/
+
+    public function generateUpdateQuery($tableName,$columns,$idNotation)
+    {
+        $columnsStr='';
+        for($i=0; $i<count($columns); $i++)
+        {
+            if ($i==(count($columns)-1))
+            {
+                $columnsStr.=$columns[$i]."=?";
+                continue;
+            }
+            $columnsStr.=$columns[$i]."=?, ";
+        }
+
+        return "UPDATE $tableName SET " .$columnsStr. " WHERE $idNotation=?";
+
+    }
+
+
+    public function generateInsertionQuery($tableName,$columns)
+    {
+        $columnsStr=implode(", ",$columns);
+        $valuesStr='';
+        for($i=0; $i<count($columns); $i++)
+        {
+            if ($i==(count($columns)-1))
+            {
+                $valuesStr.="?";
+                continue;
+            }
+            $valuesStr.="?, ";
+        }
+        return "INSERT INTO $tableName (".$columnsStr.") VALUES(".$valuesStr.")";
+
+    }
+
+    public function generateAllSelectionQuery($tableName,$idNotation=NULL)
+    {
+        $query="SELECT * FROM $tableName";
+
+        if($idNotation)
+            $query.= " WHERE $idNotation=?";
+        
+        return $query;
+    }
+
+    public function generateAllSelectionQueryAndWhere($tableName,$idNotation=NULL)
+    {
+        $query="SELECT * FROM $tableName";
+
+        if($idNotation)
+        {
+            $query.= " WHERE";
+            for($i=0; $i<count($idNotation ); $i++)
+            {
+                if ($i==(count($idNotation )-1))
+                {
+                    $query.= " ". $idNotation[$i]."=?";
+                    continue;
+                }
+                $query.= " ". $idNotation[$i]."=? and";
+            }
+        }
+        return $query;
     }
 
     public function showMyMessages($id,$target){
@@ -261,17 +370,22 @@ class User{
         }
     }
 
-    public function showOtherUsers($id){
-        try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userId!=?");
-            $statement->execute([$id]);
-            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
-            if (!empty($res[0])){
-                return $res;
-            }
-        }catch(PDOException $e) {
-            echo "Error";
-            echo $e->getMessage();
+    public function showOtherUsers($userId) {
+        try {
+            $statement = $this->conn->prepare("
+                SELECT u.userId, u.username, COUNT(m.msg_id) AS unreadCount
+                FROM users u
+                LEFT JOIN users_chat m ON u.userId = m.sender_id AND m.receiver_id = :userId AND m.msg_status = 'unread'
+                WHERE u.userId != :userId
+                GROUP BY u.userId, u.username
+            ");
+            $statement->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $statement->execute();
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+            return $result;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
             return false;
         }
     }
@@ -316,6 +430,31 @@ class User{
             echo "Error". $e->getMessage();
         }
     }
+    
+    public function markMessagesAsRead($receiverId, $senderId) {
+        try {
+            $statement = $this->conn->prepare("UPDATE users_chat SET msg_status = 'read' WHERE receiver_id = ? AND sender_id = ? AND msg_status = 'unread'");
+            $statement->execute([$receiverId, $senderId]);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+        }
+    }
+
+    public function countUnreadMessages($receiverId, $senderId) {
+        try {
+            $statement = $this->conn->prepare("SELECT COUNT(*) AS unread_count FROM users_chat WHERE receiver_id=? AND sender_id=? AND msg_status='unread'");
+            $statement->execute([$receiverId, $senderId]);
+            $result = $statement->fetch(PDO::FETCH_ASSOC);
+    
+            // Return the count of unread messages
+            return $result['unread_count'];
+    
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return 0; // Return 0 in case of an error
+        }
+    }
+    
 }
 
 ?>

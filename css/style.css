@@ -3,12 +3,13 @@
   }
   
   body {
-    font-family: Arial;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;   
     /*padding: 10px;*/
-    background: #f1f1f1;
+    background-color: #04473e;
   }
   
-  /* Header/Blog Title */
+  /*THIS IS WHEERE ASDASDASd Header/Blog Title */
   .header {
     padding: 30px;
     text-align: center;
@@ -24,7 +25,7 @@
     top: 0;
     position:sticky;
     overflow: hidden;
-    background-color: #147064;
+    background-color: #04473e;
     z-index: 100;
   }
   
@@ -61,32 +62,6 @@
     padding:5px;
     outline:none;
     border-radius: 15px/15px;
-  }
-
-.search-button1 {
-  float: right;
-}
-
-/*Form style*/
-.input{
-  display: block;
-  padding: 10px;
-  font-size: larger;
-
-}
-  .textField{
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    color: #333;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    float: right;
-}
-
-  .textField:focus {
-    border-color: #007BFF; /* Change to your desired focus color */
-    background-color: #f0f0f0; /* Change to your desired focus background color */
 }
 
 .button{
@@ -108,18 +83,20 @@
   
   
   
+  
+  	
   /* Create two unequal columns that floats next to each other */
   /* Left column */
   .leftcolumn {   
     float: left;
-    width: 75%;
+    width: 63%;
   }
   
   /* Right column */
   .rightcolumn {
     float: left;
-    width: 25%;
-    background-color: #f1f1f1;
+    width: 37%;
+    background-color: #04473e;
     padding-left: 20px;
   }
   
@@ -167,3 +144,317 @@
       width: 100%;
     }
   }
+
+
+
+  /*Password checking related code*/
+
+.input {
+  position: relative;
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.label {
+  width: 30%;
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+
+.textField{
+    width: 100%;
+    height: 40px;
+    background: #fff;
+    border: none;
+    padding: 5px 15px;
+    outline: none;
+    border-radius: 5px;
+    color: #04473e;
+    padding-right: 45px;
+}
+
+.textField::placeholder{
+    color: #04473e;
+}
+
+.textField:focus{
+    box-shadow: 0 0 0 3px #04473e;
+}
+
+.password-input{
+  width: 100%;
+  height: 40px;
+  background: #fff;
+  border: none;
+  padding: 5px 15px;
+  outline: none;
+  border-radius: 5px;
+  color: #04473e;
+  padding-right: 45px;
+}
+
+.password-input::placeholder{
+  color: #04473e;
+}
+
+.password-input:focus{
+  box-shadow: 0 0 0 3px #04473e;
+}
+
+
+.show-password{
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #04473e;
+}
+
+
+.password-checklist{
+    z-index: 100;
+    position: absolute;
+    top: calc(100% + 10px);
+    width: 100%;
+    padding: 20px 30px;
+    background: #065f53;
+    border-radius: 5px;
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: .5s ease;
+}
+
+.checklist-title{
+    font-size: 15px;
+    color: #021815;
+    margin-bottom: 10px;
+}
+
+.checklist{
+    list-style: none;
+}
+
+.list-item{
+    padding-left: 30px;
+    color: #fff;
+    font-size: 14px;
+}
+
+.list-item::before{
+    content: '\f00d';
+    font-family: FontAwesome;
+    display: inline-block;
+    margin: 8px 0;
+    margin-left: -30px;
+    width: 20px;
+    font-size: 12px;
+}
+
+.list-item.checked{
+    opacity: 0.5;
+}
+
+.list-item.checked::before{
+    content: '\f00c';
+    color: #ffffff;
+}
+
+
+.password-input:focus ~ .password-checklist{
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/*Registration form specific styling*/
+.choice {
+  width: 100%;
+  margin: 10px 0px; 
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-type-btn {
+  font-size: larger;
+  flex-basis: 48%;
+  height: 45px  ;
+  padding: 10px 2px;
+  border: none;
+  cursor: pointer;
+  text-align:center;
+}
+
+#studentBtn {
+  color: white;
+  background-color: #04473e; /* Green */
+}
+
+#mentorBtn {
+  color: #04473e;
+  background-color: white; /* Blue */
+}
+
+.form-section {
+  display: none;
+}
+
+.show-form {
+  display: block;
+}
+
+
+
+/*Comment section styling*/
+
+.comment {
+  margin-bottom: 2%;
+  padding: 2%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #04473e;
+  position: relative;
+}
+
+.comment-header {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.2em;
+  display: flex;
+  align-items: center;
+}
+
+.user-image img {
+  width: 30px; /* Adjust the width as needed */
+  height: 30px; /* Adjust the height as needed */
+  border-radius: 50%;
+  margin-right: 0.5em;
+}
+
+.comment-body {
+  font-size: 0.9em;
+  color: white;
+  margin-bottom: 0.5em;
+}
+
+.comment-footer {
+  margin-top: 0.5em;
+  font-size: 0.8em;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.like-btns {
+  display: flex;
+  gap: 0.5em;
+}
+
+.like-btn,
+.dislike-btn {
+  cursor: pointer;
+  font-size: 1em;
+  color: #888;
+}
+
+.like-btn.active,
+.dislike-btn.active {
+  color: #3498db;
+}
+.comment-form{
+  margin-top: 10%;
+  margin-bottom: 2%;
+  position: relative;
+}
+.comment-form textarea {
+  width: 100%;
+  padding: 0.5em;
+  font-size: 1.1em;
+  margin-top: 0.7em;   
+  margin-bottom: 0.5em;   
+  resize: none;
+  color: #04473e;
+
+}
+
+@media screen and (max-width: 600px) {
+
+  .comment {
+      padding: 5%;
+  }
+}
+
+
+
+
+/*Profile related style*/
+
+.profile-container {
+  width: 100%;
+  margin: 0;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 2%;
+  border-radius: 10px;
+}
+
+.profile-container h2{
+  text-align: center;
+  color: #04473e;
+}
+
+.profile-header {
+  text-align: center;
+}
+
+.profile-image img {
+  width: 100px; /* Adjust the width as needed */
+  height: 100px; /* Adjust the height as needed */
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.profile-username {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #04473e;
+  margin-bottom: 10px;
+}
+
+.profile-bio {
+  font-size: 1em;
+  color: #05554a;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-section {
+  margin-top: 20px;
+}
+
+.profile-details {
+  display: flex;
+  justify-content: space-around;
+  font-size: 0.9em;
+  color: #05554a;
+}
+
+.detail-item {
+  text-align: center;
+}
+.detail-item-header{
+  font-weight: bold;
+}
+
+@media screen and (max-width: 600px) {
+  .profile-container {
+      width: 90%;
+  }
+}

@@ -4,7 +4,10 @@ require_once "./core/utilities.php";
 include_once "./includes/head.php";
 
 $user = new User();
-$targetUserId = isset($_GET['userId']) ? $_GET['userId'] : null;
+if (isset($_GET['userId'])) {
+    $targetUserId = $_GET['userId'];
+    $user->markMessagesAsRead($_SESSION['uID'], $targetUserId);
+}
 $me= $user->getUsernameById($_SESSION['uID']); 
 $chatPartner;
 
@@ -43,11 +46,13 @@ if (!is_array($data)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    <link rel="stylesheet" href="css/styleMes.css">
+    <link rel="stylesheet" href="css/styleChat.css">
 </head>
 <body>
 <div id="users-container">
-    <?php echo $me['username'];?>
+    <?php echo $me['username'];
+    echo '<br>';
+    echo '<a href="index.php">Vratite se na glavnu strani</a>';?>
     <form method="post" action="">
         <input type="text" name="searchUser" placeholder="Pretrazite korisnika...">
         <input type="submit" name="pretrazi" value="Pretrazi">
@@ -56,14 +61,18 @@ if (!is_array($data)) {
     echo '<p><center>Korisnici</center></p>';
     if (!empty($data)) {
         echo '<div class="user-list">';
+        usort($data, function ($a, $b) {
+            return $b['unreadCount'] - $a['unreadCount'];
+        });
         foreach ($data as $userData) {
-            echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . $userData['username'] . '</a><br>';
+            $unreadCount = $user->countUnreadMessages($_SESSION['uID'], $userData['userId']);
+            $notificationIndicator = ($unreadCount > 0) ? '<span class="notification-indicator">!</span>' : '';
+            echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . $notificationIndicator . $userData['username'] . '</a><br>';
         }
         echo '</div>';
     } else {
         echo "No other users found.";
     }
-    echo '<a href="index.php">Vratite se na glavnu strani</a>';
     ?>
 </div>
 

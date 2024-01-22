@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <?php
-    require_once "./core/userDB.php";
+
     require_once "./core/utilities.php";
     include_once "./includes/head.php";
 
     forbidAccesNonLogged();
 
-    include_once "./includes/header.html";
     include_once "./includes/topnav.php";
+    include_once "./includes/header.html";
 ?>
 <body>
     <div class="row">
@@ -29,7 +29,7 @@
     if(isset($_POST['change']))
     {
         $currPass=$_POST['currentPass'];
-        $newPass=$_POST['newPass'];
+        $newPass=$_POST['checkPass'];
         $newPassAgain=$_POST['newPassAgain'];
         if($uID=validatePassChange($currPass,$newPass ,$newPassAgain,$_SESSION['uID'],$user))
         {
@@ -42,11 +42,12 @@
     echo "<h2>Promena sifre</h2>";
     if(!$user->isEmptyErrors())
         echo $errorstr;
-    $fields=array('Trenutna sifra*'=>'currentPass','Nova sifra'=>'newPass','Nova sifra ponovo*'=>'newPassAgain');
+    $fields=array('Trenutna sifra*'=>'currentPass','Nova sifra*'=>'checkPass','Nova sifra ponovo*'=>'newPassAgain');
     $types=array('password','password','password');
     $submit=array('Promeni'=>'change');
     $action=$_SERVER['PHP_SELF']; $method='post';
-    renderForm($fields,$types,$submit,$action,$method);
+    renderFormWithPasswordStrengthCheckAndRadios($fields,$types,$submit,$action,$method,NULL);
+    echo "<script src='./core/passwordChecker.js'></script>";
 ?>    
             </div>
         </div>
