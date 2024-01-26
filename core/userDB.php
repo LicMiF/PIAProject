@@ -71,7 +71,7 @@ class User{
     {
         try{
             $pass=$this->hashPassword($password);
-            $statement=$this->conn->prepare($this->generateUpdateQuery('users','password','userId'));
+            $statement=$this->conn->prepare($this->generateUpdateAndWhereQuery('users',array('password'),array('userId')));
             $statement->execute([$pass,$uID]);
             return true;
         }
@@ -88,7 +88,7 @@ class User{
         try{
 
             $columns=array("mail","firstName","lastName");
-            $statement=$this->conn->prepare($this->generateUpdateQuery('users',$columns,'userId'));
+            $statement=$this->conn->prepare($this->generateUpdateAndWhereQuery('users',$columns,array('userId')));
             $statement->execute([$mail,$firstName ,$lastName,$uID]);
             return true;
         }
@@ -148,6 +148,21 @@ class User{
         }
     }
 
+    public function insertDataSpecific($columns,$values,$table)
+    {
+        try {
+            $statement = $this->conn->prepare($this->generateInsertionQuery($table,$columns));
+            $statement->execute($values);
+            return true;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
     public function selectDataGeneric($table,$cols=NULL,$whereConds=NULL)
     {
         try {
@@ -172,6 +187,30 @@ class User{
             return false;
         }
     }
+
+
+    /*Inside values */
+    public function updateDataGeneric($table,$cols,$vals,$whereCols=NULL,$whereConds=NULL)
+    {
+        try {
+            $statement = $this->conn->prepare($this->generateUpdateAndWhereQuery($table,$cols,$whereCols));
+    
+            if($whereConds)
+                $vals = array_merge($vals, $whereConds);;
+
+            $statement->execute($vals);
+            return true;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+
+
 
     public function userExists($username)
     {
@@ -273,7 +312,8 @@ class User{
 
     /*Helper functions*/
 
-    public function generateUpdateQuery($tableName,$columns,$idNotation)
+
+    public function generateUpdateAndWhereQuery($tableName,$columns,$whereCols=NULL)
     {
         $columnsStr='';
         for($i=0; $i<count($columns); $i++)
@@ -286,8 +326,22 @@ class User{
             $columnsStr.=$columns[$i]."=?, ";
         }
 
-        return "UPDATE $tableName SET " .$columnsStr. " WHERE $idNotation=?";
+        $query="UPDATE $tableName SET " .$columnsStr;
 
+        if($whereCols)
+        {
+            $query.= " WHERE";
+            for($i=0; $i<count($whereCols ); $i++)
+            {
+                if ($i==(count($whereCols )-1))
+                {
+                    $query.= " ". $whereCols[$i]."=?";
+                    continue;
+                }
+                $query.= " ". $whereCols[$i]."=? and";
+            }
+        }
+        return $query;
     }
 
 
@@ -337,6 +391,88 @@ class User{
         }
         return $query;
     }
+
+/* Messages related */
+
+    public function showMyMessages($id,$target){
+        try{
+            $statement = $this->conn->prepare("SELECT * FROM messages WHERE senderId=? AND recieverId=?");
+            $statement->execute([$id,$target]);
+
+            $res=($statement->fetchALL(PDO::FETCH_ASSOC));
+            if (!empty($res[0])){
+                return $res;
+            }
+        }catch(PDOException $e) {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+
+    }
+    public function showYourMessages($id,$target){
+        try{
+            $statement = $this->conn->prepare("SELECT * FROM messages WHERE recieverId=? AND senderId=?");
+            $statement->execute([$id,$target]);
+
+            $res=($statement->fetchALL(PDO::FETCH_ASSOC));
+            if (!empty($res[0])){
+                return $res;
+            }
+        }catch(PDOException $e) {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function showOtherUsers($userId) {
+        try {
+            $statement = $this->conn->prepare("
+                SELECT u.userId, u.username, u.firstName, u.lastName, u.profileImagePath ,COUNT(m.messageId) AS unreadCount
+                FROM users u
+                LEFT JOIN messages m ON u.userId = m.senderId AND m.recieverId = :userId AND m.viewedReciever = 0
+                WHERE u.userId != :userId
+                GROUP BY u.userId, u.username
+            ");
+            $statement->bindParam(':userId', $userId, PDO::PARAM_INT);
+            $statement->execute();
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+            return $result;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+    
+    public function markMessageAsRead($receiverId, $senderId) {
+        try {
+            $statement = $this->conn->prepare("UPDATE messages SET viewedReciever = 1 WHERE recieverId = ? AND senderId = ? AND viewedReciever = 0");
+            $statement->execute([$receiverId, $senderId]);
+            return true;
+        } catch (PDOException $e) {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function countUnreadMessages($receiverId, $senderId) {
+        try {
+            $statement = $this->conn->prepare("SELECT COUNT(*) AS unread_count FROM messages WHERE recieverId=? AND senderId=? AND viewedReciever=0");
+            $statement->execute([$receiverId, $senderId]);
+            $result = $statement->fetch(PDO::FETCH_ASSOC);
+    
+            // Return the count of unread messages
+            return $result['unread_count'];
+    
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return 0; // Return 0 in case of an error
+        }
+    }
+
 }
 
 ?>

@@ -4,15 +4,10 @@ let passwordInp = document.querySelector('.password-input');
 
 showPasswordBtn.addEventListener('click', () => {
 
-    // toggle icon 
-
-    // font awesome class for eye icon
     showPasswordBtn.classList.toggle('fa-eye'); 
 
-    // font awesome class for slashed eye icon
     showPasswordBtn.classList.toggle('fa-eye-slash');
 
-    // ternary operator a shorthand for if and else to change the type of password input
     passwordInp.type = passwordInp.type === 'password' ? 'text' : 'password';
 
 })

@@ -64,7 +64,7 @@
     {
         echo '<div class="input">
         <div class="label"><strong>'.$value.'</strong></div>
-        <input type="password" placeholder="Password" class="password-input" name="checkPass">
+        <input type="password" placeholder="Šifra" class="password-input" name="checkPass">
         <i class="fa-solid fa-eye show-password"></i>
 
         <div class="password-checklist">
@@ -184,7 +184,7 @@
         
     }
 
-    function validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,&$user)
+    function validateRegisterUser($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,$education,$interests,&$user)
     {   
         if(empty($username) || empty($password) || empty($passwordAgain) || empty($mail) || empty($firstName) || empty($skills))
         {
@@ -209,7 +209,15 @@
         if (strlen($lastName)>31)
             $user->appendError('Prezime je predugo, nadamo se da nisi ti: Wolfeschlegelsteinhausenbergerdorff');
         
+        if (strlen($skills)>4000)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis vestina');
+        
+        if (strlen($education)>2000)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis obrazovanja');
 
+        if (strlen($interests)>4000)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis interesovanja');
+        
         paswordsChecker($password,$passwordAgain,$user);
         
         if(!$user->isEmptyErrors())
@@ -225,8 +233,86 @@
             $user->appendError('Greska na serveru, pokusajte ponovo :(');
             return false;
         }
-        return $uID;
+
+        $columns=array('userId','education','interests');
+        $values=array($uID,$education,$interests);
+        
+        
+        if(!($user->insertDataSpecific($columns,$values,'userSpecific')))
+        {
+            $user->appendError('Greska na serveru, pokusajte ponovo :(');
+            return false;
+        }
+
+        return true;
     }
+
+    function validateRegisterMentor($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,$knowledge,$yearExp,&$user)
+    {   
+        if(empty($username) || empty($password) || empty($passwordAgain) || empty($mail) || empty($firstName) || empty($skills))
+        {
+            $user->appendError('Molimo vas da popunite sva polja pored kojih stoji *');
+            return false;
+        }
+        if ($user->userExists($username))
+            $user->appendError('Korisnicko ime je zauzeto :(');
+
+        if (strlen($username)>31)
+            $user->appendError('Korisnicko ime je predugo, dozvoljeni maksimum je 32 karaktera');
+
+        if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
+            $user->appendError('Uneta mejl adresa nije u ispravnom formatu');
+
+        if ($user->mailExists($mail))
+            $user->appendError('Email adresa je vec registrovana :(');
+
+        if (strlen($firstName)>31)
+            $user->appendError('Ime je predugo, dozvoljeni maksimum je 32 karaktera');
+
+        if (strlen($lastName)>31)
+            $user->appendError('Prezime je predugo, nadamo se da nisi ti: Wolfeschlegelsteinhausenbergerdorff');
+        
+        if (strlen($skills)>4000)
+            $user->appendError('Prekoracili ste dozvoljeni limit karaktera za opis vestina');
+
+
+        if (!preg_match('/^[0-9-]+$/', $yearExp)) 
+            $user->appendError('Godine iskustva moraju sadržati samo brojeve i karakter -');
+        
+        if (strlen($yearExp)>10)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis godina iskustva');
+
+        if (strlen($knowledge)>4000)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis znanja');
+        
+        paswordsChecker($password,$passwordAgain,$user);
+        
+        if(!$user->isEmptyErrors())
+            return false;
+
+        $columns=array('username', 'password', 'mail', 'firstName', 'lastName', 'emailHash', 'userType','skills');
+        $pass=$user->hashPassword($password);
+        $emailHash=$user->hashMail($mail);
+        $values=array($username,$pass,$mail,$firstName,$lastName,$emailHash,$userType,$skills);
+        
+        if(!($uID=$user->insertDataGeneric($columns,$values,'users')))
+        {
+            $user->appendError('Greska na serveru, pokusajte ponovo :(');
+            return false;
+        }
+
+        $columns=array('userId','knowledge','yearExp');
+        $values=array($uID,$knowledge,$yearExp);
+        
+        if(!($user->insertDataSpecific($columns,$values,'mentorSpecific')))
+        {
+            $user->appendError('Greska na serveru, pokusajte ponovo :(');
+            return false;
+        }
+
+        return true;
+    }
+    
     
     function validatePassChange($currPass,$newPass ,$newPassAgain,$uID,&$user)
     {
@@ -253,13 +339,9 @@
 
     }
 
-    function validateSettingsChange($mail,$firstName ,$lastName,$uID,&$user)
+    function validateSettingsChangeUser($mail,$firstName ,$lastName,$skills,$education,$interests,$uID,&$user)
     {
-        if(empty($mail) || empty($firstName) || empty($lastName))
-        {
-            $user->appendError('Molimo vas da popunite sva polja pored kojih stoji *');
-            return false;
-        }
+
         if ($mail !== $user->getUserMail($uID))
         {   
             if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
@@ -274,10 +356,72 @@
         if (strlen($lastName)>31)
             $user->appendError('Prezime je predugo, nadamo se da nisi ti: Wolfeschlegelsteinhausenbergerdorff');
 
+        
+        if (strlen($skills)>4000)
+            $user->appendError('Prekoracili ste dozvoljeni limit karaktera za opis vestina');
+
+        if (strlen($education)>2000)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis obrazovanja');
+
+        if (strlen($interests)>4000)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis interesovanja');
+
         if(!$user->isEmptyErrors())
             return false;
 
         if(!($uID=$user->updateInfo($mail,$firstName ,$lastName,$uID)))
+        {
+            $user->appendError('Greska na serveru, pokusajte ponovo :(');
+            return false;
+        }
+        return true;
+
+    }
+
+    function validateSettingsChangeMentor($mail,$firstName ,$lastName,$skills,$yearExp,$knowledge,$uID,&$user)
+    {
+        if ($mail !== $user->getUserMail($uID))
+        {   
+            if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
+                $user->appendError('Uneta mejl adresa nije u ispravnom formatu');
+
+            if ($user->mailExists($mail))
+                $user->appendError('Email adresa je vec registrovana :(');
+        }
+        if (strlen($firstName)>31)
+            $user->appendError('Ime je predugo, dozvoljeni maksimum je 32 karaktera');
+
+        if (strlen($lastName)>31)
+            $user->appendError('Prezime je predugo, nadamo se da nisi ti: Wolfeschlegelsteinhausenbergerdorff');
+
+        
+        if (strlen($skills)>4000)
+            $user->appendError('Prekoracili ste dozvoljeni limit karaktera za opis vestina');
+
+        if (!preg_match('/^[0-9-]+$/', $yearExp)) 
+            $user->appendError('Godine iskustva moraju sadržati samo brojeve i karakter -');
+        
+        if (strlen($yearExp)>10)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis godina iskustva');
+
+        if (strlen($knowledge)>4000)
+            $user->appendError('Prekoracili ste dozvoljen limit karaktera za opis znanja');
+
+        if(!$user->isEmptyErrors())
+            return false;
+
+        $columns=array('mail','firstName','lastName','skills');
+        $values=array($mail,$firstName ,$lastName,$skills);
+        if(!($user->updateDataGeneric('users',$columns,$values,array('userId'),array($uID))))
+        {
+            $user->appendError('Greska na serveru, pokusajte ponovo :(');
+            return false;
+        }
+
+        $columns=array('yearExp','knowledge');
+        $values=array($yearExp,$knowledge);
+
+        if(!($user->updateDataGeneric('mentorSpecific',$columns,$values,array('userId'),array($uID))))
         {
             $user->appendError('Greska na serveru, pokusajte ponovo :(');
             return false;
@@ -457,7 +601,7 @@
 
             echo "  <div class='comment-header'>
                         <div class='user-image'>
-                            <img src='./uploads/img2.jpg' alt='User Icon'>
+                            <img src='./uploads/".$senderData['profileImagePath']."' alt='User Icon'>
                         </div>
                         <span>".$senderData['firstName']." ".$senderData['lastName']."</span>
                     </div>";//Add $senderData image
@@ -504,7 +648,7 @@
 
         echo "  <div class='profile-header'>
                     <div class='profile-image'>
-                        <img src='./uploads/img1.jpg' alt='Profile Picture'>
+                        <img src='./uploads/".$userData['profileImagePath']."' alt='Profile Picture'>
                     </div>
                     <div class='profile-username'>".$userData['firstName']." ".$userData['lastName']."</div>
                     <div class='profile-bio'>Web Developer | Nature Lover | Coffee Enthusiast</div>
@@ -514,7 +658,7 @@
                     <h2>Informacije o korisniku</h2>
                     <div class='profile-details'>
                         <div class='detail-item'>
-                            <div class='detail-item-header'>Korisnicko Ime</div>
+                            <div class='detail-item-header'>Korisničko Ime</div>
                             <div>".$userData['username']."</div>
                         </div>
                         <div class='detail-item'>
@@ -560,7 +704,7 @@
 
         echo "  <div class='profile-header'>
                     <div class='profile-image'>
-                        <img src='./uploads/img1.jpg' alt='Profile Picture'>
+                        <img src='./uploads/".$userData['profileImagePath']."' alt='Profile Picture'>
                     </div>
                     <div class='profile-username'>".$userData['firstName']." ".$userData['lastName']."</div>
                     <div class='profile-bio'>Web Developer | Nature Lover | Coffee Enthusiast</div>
@@ -570,7 +714,7 @@
                     <h2>Informacije o korisniku</h2>
                     <div class='profile-details'>
                         <div class='detail-item'>
-                            <div class='detail-item-header'>Korisnicko Ime</div>
+                            <div class='detail-item-header'>Korisničko Ime</div>
                             <div>".$userData['username']."</div>
                         </div>
                         <div class='detail-item'>
@@ -607,4 +751,133 @@
                 </div>                          ";
         
     }
+
+    /*Messages displaying */
+
+    function displayDmUsers($usersData,&$user)
+    {
+        if (!empty($usersData)) {
+            echo '<div class="user-list">';
+            usort($usersData, function ($a, $b) {
+                return $b['unreadCount'] - $a['unreadCount'];
+            });
+            foreach ($usersData as $userData) {
+                // $unreadCount = $user->countUnreadMessages($_SESSION['uID'], $userData['userId']);
+                // $notificationIndicator = ($unreadCount > 0) ? '<span class="notification-indicator">!</span>' : '';
+                echo "<div class='user-container'>";
+                echo "  <div class='user-image'>
+                            <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . $notificationIndicator . " " . $userData['firstName']." ".$userData['lastName'] . '</a><br>';
+                echo "</div>";
+            }
+            echo '</div>';
+        } else {
+            echo "Započnite konverzaciju..";
+        }
+    }
+
+    function displayUserDm($targetUserId, &$user)
+    {
+        $chatPartner= $user->selectDataGeneric('users',array('userId'),array($targetUserId))[0];
+        echo "<h2>".$chatPartner['firstName']." ".$chatPartner['lastName']."</h2>";
+        $myMessages = $user->showMyMessages($_SESSION['uID'], $targetUserId);
+        $yourMessages = $user->showYourMessages($_SESSION["uID"], $targetUserId);
+        
+        if (!is_array($myMessages)) {
+            $myMessages = [];
+        }
+
+        if (!is_array($yourMessages)) {
+            $yourMessages = [];
+        }
+
+        $allMessages = array_merge($myMessages, $yourMessages);
+        usort($allMessages, function ($a, $b) {
+            return strtotime($a['timestamp']) - strtotime($b['timestamp']);
+        });
+
+        if (!empty($allMessages)) {
+            $firstIter=true;
+            foreach ($allMessages as $message) {
+                $messageBody = $message['body'];
+                $messageDate = $message['timestamp'];
+                $messageClass = ($message['senderId'] == $_SESSION['uID']) ? 'sent' : 'received';
+
+                if ($messageClass=='received' && (($lastClass!='received') || $firstIter)){
+                    echo "<div class='message-row'>";
+                    echo "  <div class='message-image'>
+                                <img src='./uploads/".$chatPartner['profileImagePath']."' alt='User Icon'>
+                            </div>";
+                }
+                else if($messageClass=='sent' && (($lastClass=='received')))
+                    echo "</div>";
+
+                echo "<div class='message $messageClass'>";
+                echo "<span class='message-content'>$messageBody</span>";
+                echo "<span class='message-date'>$messageDate</span>";
+                echo "</div>";
+                $lastClass=$messageClass;
+                $firstIter=false;
+            }
+            if ($lastClass=='received')
+                echo "</div>";
+        } else {
+            echo "<p>Započnite konverzaciju..</p>";
+        }
+    }
+
+
+    /*Image files validation*/
+    function verifyImageAndSaveImage($userId,&$user)
+    {
+
+        switch ($_FILES['image']['error']) {
+            case UPLOAD_ERR_OK:
+                break;
+            case UPLOAD_ERR_NO_FILE:
+                $user->appendError('Fajl nije poslat');
+                break;
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                $user->appendError('Preveliki fajl');
+                break;
+            default:
+                $user->appendError('Greska prilikom postavljanja slike');
+            }
+
+        if ($_FILES['image']['size'] > 1000000) {
+            $user->appendError('Preveliki fajl');
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        if (!($ext=array_search($finfo->file($_FILES['image']['tmp_name']),
+            array(
+                'jpg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+            ), true)))
+        {
+            $user->appendError('Molimo vas da postavite jpg,png ili gif sliku.');
+        }
+        $fileShaEnc= sha1_file($_FILES['image']['tmp_name']).'.'.$ext;
+        $fileSavePath="./uploads/".$fileShaEnc;
+
+        if (!move_uploaded_file($_FILES['image']['tmp_name'],$fileSavePath))
+        {
+            $user->appendError('Slika nije uspesno sacuvana, pokusajte ponovo.');
+        }
+
+        if(!$user->isEmptyErrors())
+            return false;
+
+        
+        if(!$user->updateDataGeneric('users',array('profileImagePath'),array($fileShaEnc),array('userId'),array($userId)))
+        {
+            $user->appendError('Slika nije uspesno sacuvana zbog greske na serveru pokusajte ponovo.');
+            return false;
+        }
+        return true;
+
+        }
 ?>

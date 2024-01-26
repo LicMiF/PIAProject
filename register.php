@@ -35,44 +35,50 @@
         $lastName=$_POST['lastName'];
         $skills=$_POST['skills'];
 
+        $allOk=false;
+
         if(isset($_POST['registerStudent']))
         {
             $userType=0;
-            $interests=$_POST['interests'];
-            $education=$_POST['education'];
+
+            if(empty($_POST['interests']))
+                $interests='Nije navedeno';
+            else
+                $interests=$_POST['interests'];
+
+            if(empty($_POST['education']))
+                $education='Nije navedeno';
+            else
+                $education=$_POST['education'];
+
+            $allOk=validateRegisterUser($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,$education,$interests,$user);
+
         }
         if(isset($_POST['registerMentor']))
         {
             $userType=1;
-            $knowledge=$_POST['knowledge'];
-            $yearExp=$_POST['yearExp'];
+            if(empty($_POST['knowledge']))
+                $knowledge='Nije navedeno';
+            else
+                $knowledge=$_POST['knowledge'];
+
+            if(empty($_POST['yearExp']))
+                $yearExp=0;
+            else
+                $yearExp=$_POST['yearExp'];
+
+            $allOk=validateRegisterMentor($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,$knowledge,$yearExp,$user);
+
         }
-        echo $userType;
-        if($uID=validateRegister($username,$password,$passwordAgain,$mail,$firstName,$lastName,$userType,$skills,$user))
+        if($allOk)
         {
-            //PREPROCESS SPECIFIC DATA?
-            if($userType===0)
-            {
-                $columns=array('userId','education','interests');
-                $values=array($uID,$education,$interests);
-                $user->insertDataGeneric($columns,$values,'userSpecific');
-            }
-            if($userType===1)
-            {
-                $columns=array('userId','yearExp','knowledge');
-                $values=array($uID,$yearExp,$knowledge);
-                $user->insertDataGeneric($columns,$values,'mentorSpecific');
-            }
-            /*Add mail verif notification*/
             header ("Location: index.php");
             exit();
         }
-        else
-            $errorstr=$user->displayErrors();
     }
     echo "<h2>Registracija</h2>";
     if(!$user->isEmptyErrors())
-        echo $errorstr;
+        echo $user->displayErrors();
 
     $fields=array('Korisničko ime*'=>'username','Šifra*'=>'checkPass','Šifra ponovo*'=>'passwordAgain','Mejl adresa*'=>'mail','Ime*'=>'firstName','Prezime'=>'lastName','Vestine*'=>'skills');
     $types=array('text','password','password','text','text','text');

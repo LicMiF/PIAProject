@@ -6,8 +6,6 @@
 ?>
 <body>
     <?php
-        include_once "./includes/topnav.php";
-        include_once "./includes/header.html";
         if(isset($_SESSION['uID']))
         {
             $user=new User();
@@ -17,6 +15,8 @@
             fillTheContainer($container);
             $_SESSION['container']=&$container;
         }
+        include_once "./includes/topnav.php";
+        include_once "./includes/header.html";
     ?>
 
     <div class="row">

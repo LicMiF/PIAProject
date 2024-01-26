@@ -36,10 +36,12 @@ $(document).ready(function() {
                         $user= new User();
                         $profileId=$_POST['profileId'];
                         $errorstr=NULL;
-                        if($_POST['userType']===1)
+
+                        if($_POST['userType']==0)
                             displayUserProfileDataUser($profileId,$user);
                         else
                             displayUserProfileDataMentor($profileId,$user);
+
                         if(isset($_POST['postComment']))
                         {
                             $body=$_POST['commentSection'];
