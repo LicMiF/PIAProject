@@ -11,7 +11,7 @@ $user = new User();
 $me= $user->selectDataGeneric('users',array('userId'),array($_SESSION['uID']))[0]; 
 $chatPartner;
 
-if (isset($_POST["sendMess"])) {
+if (isset($_POST["messageBody"]) || isset($_POST["sendMess"])) {
 
     $senderId = $_SESSION['uID'];
     $receiverId = $_POST['receiverId'];
@@ -41,7 +41,7 @@ if (isset($_POST["pretrazi"])) {
     }
 }
 
-$usersData = $user->showOtherUsers($_SESSION['uID']);
+$usersData = $user->showOtherUsersTest($_SESSION['uID'],$_SESSION['userType']);
 
 if (!is_array($usersData)) {
     $usersData = array();
@@ -59,11 +59,27 @@ if (!is_array($usersData)) {
 <div class='row'>
     <div class="users-container">
         <div class="card">
-            <form method="post" action="">
-                <input type="text" name="searchUser" placeholder="Pretrazite korisnika..." class="textField">
-                <input type="submit" name="pretrazi" value="Pretrazi">
+            <div class='row'>
+                <div class='chat-container-image'>
+                    <img src="./uploads/<?= $me['profileImagePath']?>" alt='User Icon'>
+                </div>
+                <div class='chat-container-username'>
+                    <h2><?= $me['firstName']." ".$me['lastName'] ?></h2>
+                </div>
+            </div>
+            <form method="post" action="<?=$_SERVER['PHP_SELF']?>" class="topNav-search">
+                <div class="search-input">
+                    <input type="text" name="searchUser" placeholder="Pretrazite korisnika..." class="textField">
+                    <i class="fas fa-search"></i>
+                </div>
+                    <input type="submit" name="performSearch" value="Pretrazi">
             </form>
             <?php
+                if (isset($_POST['performSearch']))
+                {
+                    $searchString=$_POST['searchUser'];
+                    $usersData=$user->searchForChatUsers($searchString,$_SESSION['uID'],$_SESSION['userType']);
+                }
                 displayDmUsers($usersData,$user);
             ?>
         </div>
@@ -77,7 +93,7 @@ if (!is_array($usersData)) {
                 <form action='<?=$_SERVER["PHP_SELF"]?>' method='post' class="message-form">
                     <input type='hidden' name='receiverId' value='<?php echo $targetUserId; ?>'>
                     <div class='row'>
-                        <textarea name='messageBody' placeholder='Napisite poruku...' class='textField'></textarea>
+                        <textarea name='messageBody' id='messageArea' placeholder='Napisite poruku...' class='textField'></textarea>
                         <input type='submit' name='sendMess' value='Posalji' class="button">
                     </div>
                 </form>
@@ -88,6 +104,27 @@ if (!is_array($usersData)) {
         </div>
     </div>
 </div>
+<script>
 
+function scrollToBottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    window.onload = function() {
+        scrollToBottom();
+    };
+
+  document.getElementById("messageArea").addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && event.shiftKey) {
+        // Allow the default behavior (create a new line)
+    } else if (event.key === "Enter") {
+        // Prevent the default behavior (form submission)
+        event.preventDefault();
+
+        // Trigger the form submission
+        document.querySelector(".message-form").submit();
+    }
+  });
+</script>
 </body>
 </html>

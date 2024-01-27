@@ -81,7 +81,7 @@
         echo $user->displayErrors();
 
     $fields=array('Korisničko ime*'=>'username','Šifra*'=>'checkPass','Šifra ponovo*'=>'passwordAgain','Mejl adresa*'=>'mail','Ime*'=>'firstName','Prezime'=>'lastName','Vestine*'=>'skills');
-    $types=array('text','password','password','text','text','text');
+    $types=array('text','password','password','text','text','text','text');
 
     $studentSpecific=array('Interesovanja'=>'interests','Obrazovanje'=>'education');
     $mentorSpecific=array('Znanje'=>'knowledge','Godne iskustva'=>'yearExp');

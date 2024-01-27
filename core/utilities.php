@@ -631,7 +631,7 @@
         echo "
         <div class='comment-form'>
             <form action='$action' method='$method' id='commentFormId'>
-                <textarea name='commentSection' style='height:70px;' placeholder='Unesite vas komentar...' class='textField'></textarea>
+                <textarea name='commentSection' style='height:70px;' placeholder='Unesite vaše mišljenje o mentoru...' class='textField'></textarea>
                 <input type='hidden' name='profileId' value='$profileId'>
                 <input type='hidden' name='userType' value='$userType'>
                 <input type='submit' name='postComment' value='Komentarisi' class='button'>
@@ -773,7 +773,7 @@
             }
             echo '</div>';
         } else {
-            echo "Započnite konverzaciju..";
+            echo "Nemate nijednu uspostavljenu razmenu..";
         }
     }
 
@@ -823,7 +823,7 @@
             if ($lastClass=='received')
                 echo "</div>";
         } else {
-            echo "<p>Započnite konverzaciju..</p>";
+            echo "<p>Inicirajte konverzaciju..</p>";
         }
     }
 
@@ -879,5 +879,20 @@
         }
         return true;
 
+        }
+
+        function getAverageRating($ratedId,&$user)
+        {
+            $userRatings = $user->selectDataGeneric('ratings', array('ratedId'), array($ratedId));
+            if($userRatings)
+            {
+                $totalRating=0;
+                foreach($userRatings as $userRating)
+                    $totalRating+=$userRating['rating'];
+                $averageRating=$totalRating/count($userRatings);
+            }
+            else
+                $averageRating=NULL;
+            return $averageRating;
         }
 ?>

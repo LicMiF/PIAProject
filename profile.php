@@ -3,25 +3,8 @@
 <?php
     require_once "./core/utilities.php";
     include_once "./includes/head.php";
-    forbidAccesNonLogged();
 ?>
 <body>
-
-
-<!-- <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script defer>
-$(document).ready(function() {
-    $('#commentFormId').submit(function(event) {
-        const scrollPosition = window.scrollY || window.pageYOffset;
-        sessionStorage.setItem('scrollPosition', scrollPosition.toString());
-    });
-
-    const storedScrollPosition = sessionStorage.getItem('scrollPosition');
-    if (storedScrollPosition !== null) {
-        window.scrollTo(0, parseInt(storedScrollPosition, 10));
-    }
-});
-</script> -->
 <script src="../core/maintainingPosition.js" defer></script>
     <?php
         include_once "./includes/topnav.php";
@@ -34,6 +17,7 @@ $(document).ready(function() {
                 <div class="profile-container">
                     <?php 
                         $user= new User();
+                        $requests= new Request();
                         $profileId=$_POST['profileId'];
                         $errorstr=NULL;
 
@@ -49,15 +33,45 @@ $(document).ready(function() {
                                 $errorstr=$user->displayErrors();
                         }
                         
-                    ?>
+                        ?>
+                        <?php 
+                        if(isset($_SESSION['uID']) && ($_SESSION['uID']!=$profileId) && ($requests->isApproved($_SESSION['uID'],$profileId)))
+                        {
+                        ?>
+                            <h2>Oceni mentora:</h2>
+                            <div id="userRating">
+                                <span class="star-rating" data-rating="1">&#9733;</span>
+                                <span class="star-rating" data-rating="2">&#9733;</span>
+                                <span class="star-rating" data-rating="3">&#9733;</span>
+                                <span class="star-rating" data-rating="4">&#9733;</span>
+                                <span class="star-rating" data-rating="5">&#9733;</span>
+                            </div>
+                        <?php 
+                        }
+                        ?>
+                        <h2>Prosečna ocena:</h2>
+                        <div id="averageRating" class="average-rating">
+                               <p>Mentor još uvek nema nijednu recenziju</p>
+                        </div>
+
+                        <?php 
+                                $averageRating=getAverageRating($profileId,$user);
+                                if($averageRating)
+                                {
+                                    ?>
+                                        <script defer>const averageRatingElementTemp = document.getElementById('averageRating'); averageRatingElementTemp.innerHTML = `${generateStarRatingDuplicate(parseFloat(<?=$averageRating?>))} <br> ${parseFloat(<?=$averageRating?>).toFixed(1)}`;</script>
+                                    <?php
+                                }
+                                ?>
+
             
-                    <!-- <h1 style="color:#04473e; text-align:center">Iskustva ostalih korisnika :</h1> -->
+                    <h1 style="color:#04473e; text-align:center">Iskustva ostalih korisnika :</h1>
 
                     <?php 
                         displayCommentsSection($profileId,$user);
                         if($errorstr)
                             echo $errorstr;
-                        if($_SESSION['uID']!=$profileId)
+                        if(isset($_SESSION['uID']) && ($_SESSION['uID']!=$profileId) && ($requests->isApproved($_SESSION['uID'],$profileId)))
                             displayCommentForm($profileId,$_SERVER['PHP_SELF'],'post',$_POST['userType'],$user);
                     ?>
                 </div>
@@ -87,6 +101,12 @@ $(document).ready(function() {
         </div>
     </div>
 
+
+    <script defer>
+        const ratedId=<?php echo $profileId?>;
+        const criticId=<?php echo $_SESSION['uID']?>;
+    </script>
+    <script src="../core/rating.js" defer></script>
     <?php
         include_once "./includes/footer.html";
     ?>

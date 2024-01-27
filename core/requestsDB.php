@@ -134,6 +134,24 @@ class Request extends User{
         }
     }
 
+    public function requestExists($uId,$mId)
+    {
+        try{
+            $statement=$this->conn->prepare("SELECT * from requests where senderId=? and recieverId=?");
+            $statement->execute([$uId,$mId]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+            if($res)
+                return true;
+            return false;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
 
 
 

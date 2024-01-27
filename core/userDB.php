@@ -426,17 +426,21 @@ class User{
         }
     }
 
-    public function showOtherUsers($userId) {
+
+    public function showOtherUsers($userId,$userType)
+    {
         try {
-            $statement = $this->conn->prepare("
-                SELECT u.userId, u.username, u.firstName, u.lastName, u.profileImagePath ,COUNT(m.messageId) AS unreadCount
-                FROM users u
-                LEFT JOIN messages m ON u.userId = m.senderId AND m.recieverId = :userId AND m.viewedReciever = 0
-                WHERE u.userId != :userId
-                GROUP BY u.userId, u.username
-            ");
-            $statement->bindParam(':userId', $userId, PDO::PARAM_INT);
-            $statement->execute();
+            if($userType)
+                $statement = $this->conn->prepare("SELECT users.*, requests.*
+                FROM users
+                INNER JOIN requests ON users.userId = requests.senderId
+                WHERE requests.recieverId = ? AND requests.approvedReciever = ?;");
+            else
+                $statement = $this->conn->prepare("SELECT users.*, requests.*
+                FROM users
+                INNER JOIN requests ON users.userId = requests.recieverId
+                WHERE requests.senderId = ? AND requests.approvedReciever = ?;");
+            $statement->execute([$userId,1]);
             $result = $statement->fetchAll(PDO::FETCH_ASSOC);
     
             return $result;
@@ -445,6 +449,36 @@ class User{
             return false;
         }
     }
+
+    public function showOtherUsersTest($userId,$userType)
+    {
+        try {
+            if($userType)
+            {
+                $statement = $this->conn->prepare("SELECT *
+                FROM users
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM messages
+                    WHERE (recieverId = users.userId OR senderId = users.userId)
+                       AND (recieverId = ? OR senderId = ?)
+                )");
+                $statement->execute([$userId,$userId]);
+            }
+            else
+            {
+                $statement = $this->conn->prepare("SELECT * FROM users where userType=1");
+                $statement->execute();
+            }
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+            return $result;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+    
     
     public function markMessageAsRead($receiverId, $senderId) {
         try {
@@ -473,6 +507,87 @@ class User{
         }
     }
 
+    /*Search related code*/
+    public function searchForChatUsers($searchString,$userId,$userType)
+    {
+        try {
+            $searchCondition = "users.username LIKE :search OR users.firstName LIKE :search OR users.lastName LIKE :search";
+
+            if ($userType) {
+                $statement = $this->conn->prepare("
+                    SELECT users.*, requests.*
+                    FROM users
+                    INNER JOIN requests ON users.userId = requests.senderId
+                    WHERE requests.recieverId = :userId AND requests.approvedReciever = 1
+                    AND ($searchCondition)
+                ");
+            } else {
+                $statement = $this->conn->prepare("
+                    SELECT users.*, requests.*
+                    FROM users
+                    INNER JOIN requests ON users.userId = requests.recieverId
+                    WHERE requests.senderId = :userId AND requests.approvedReciever = 1
+                    AND ($searchCondition)
+                ");
+            }
+
+            $statement->bindParam(':userId', $userId);
+            $searchString = "%$searchString%";
+            $statement->bindParam(':search', $searchString);
+
+            $statement->execute();
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            return $result;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+
+    public function searchForOtherMentors($searchString)
+    {
+        try {
+            $searchCondition = "users.username LIKE :search OR users.firstName LIKE :search OR users.lastName LIKE :search OR users.skills LIKE :search OR mentorSpecific.knowledge LIKE :search";
+    
+            $statement = $this->conn->prepare("
+                SELECT users.*, mentorSpecific.*
+                FROM users
+                INNER JOIN mentorSpecific ON users.userId = mentorSpecific.userId
+                WHERE users.userType = 1 AND ($searchCondition)
+            ");
+    
+            $searchString = "%$searchString%";
+            $statement->bindParam(':search', $searchString);
+    
+            $statement->execute();
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+            return $result;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function isAlreadyRated($ratedId,$criticId)
+    {
+        try{            
+            $statement=$this->conn->prepare($this->generateAllSelectionQueryAndWhere('ratings',array('ratedId','criticId')));
+            $statement->execute([$ratedId,$criticId]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            if($res)
+                return true;
+            return false;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
 }
 
 ?>

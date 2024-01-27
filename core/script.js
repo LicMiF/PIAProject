@@ -118,3 +118,12 @@ function showForm(userType) {
             window.scrollTo(0, storedScrollPosition);
         }
     }
+
+
+    function generateStarRatingDuplicate(rating) {
+        const maxRating=5;
+        const fullStars = '&#9733;'.repeat(Math.floor(rating));
+        const halfStar = (rating % 1 !== 0) ? '&#9733;' : '';
+        const emptyStars = '&#9734;'.repeat(Math.floor(maxRating - rating));
+        return `${fullStars}${halfStar}${emptyStars}`;
+    }
