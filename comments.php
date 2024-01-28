@@ -39,7 +39,7 @@
                         echo "<td>".$row['mail']."</td>";
                         if($_SESSION['userType'])
                         {
-                            echo "<td> <input type='button' id=".$row['userId']." value='Vidi profil onclick='viewProfile(this.id,0)' class='button' ></td>";
+                            echo "<td> <input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,0)' class='button' ></td>";
                         }
                         else
                         {

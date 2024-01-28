@@ -55,12 +55,9 @@
     display: inline;
   }
 
-  .searchbox{
-    width:400px;
-    background:#27756b;
-    color: white;
-    padding:5px;
-    outline:none;
+  .searcharea .textField{
+    width: 400px;
+    color: #04473e;
     border-radius: 15px/15px;
 }
 
@@ -331,8 +328,8 @@
 }
 
 .user-image img {
-  width: 30px; /* Adjust the width as needed */
-  height: 30px; /* Adjust the height as needed */
+  width: 30px; 
+  height: 30px; 
   border-radius: 50%;
   margin-right: 0.5em;
 }
@@ -409,6 +406,10 @@
   text-align: center;
   color: #04473e;
 }
+.profile-container p{
+  text-align: center;
+  color: #04473e;
+}
 
 .profile-header {
   text-align: center;
@@ -457,4 +458,405 @@
   .profile-container {
       width: 90%;
   }
+}
+
+
+
+/*Chat related styling*/
+
+.chat-container {   
+  float: left;
+  width: 80%;
+  padding-left: 20px;
+  background-color: #04473e;
+}
+
+.users-container {
+  position: sticky;
+  float: left;
+  width: 20%;
+  background-color: #04473e;
+  top: 20px;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding-left: 10px;
+  padding-top: 5px;
+  padding-right: 7px;
+  border-radius: 5px;
+}
+
+.sent {
+  background-color:  #04473e;
+  color: #fff;
+  text-align: right;
+  margin-left: auto;
+  width: 40%;
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.received {
+  float: right;
+  background-color: #ddd;
+  text-align: left;
+  margin-right: auto;
+  width: 90%;
+  content: "";
+  display: table;
+  clear: both;
+} 
+
+.message-image {
+  float: left;
+  position: relative;
+  top: 35px;
+}
+
+.message-image img {
+  width: 45px; 
+  height: 45px; 
+  border-radius: 50%;
+  margin-right: 0.5em;
+}
+
+.message-row{
+  width: 50%;
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.message-content {
+  display: inline-block;
+  vertical-align: top;
+  word-wrap: break-word;
+  word-break: break-all;
+  padding-bottom: 7px;
+  float: left;
+}
+
+.message-date {
+  float: right;
+  font-size: 12px;
+  margin-top: 4px;
+  padding-bottom: 7px;
+}
+
+
+.sent .message-date{
+  color: white;
+}
+
+.received .message-date{
+  color: black;
+}
+
+
+
+.users-container form {
+  margin-top: 10px;
+}
+
+.users-container input[type="text"] {
+  width: 100%;
+  height: 30px;
+  box-sizing: border-box;
+}
+
+.users-container input[type="submit"] {
+  background-color:  #147064;
+  color: #fff;
+  border: none;
+  margin-top: 10px;
+  padding: 5px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.users-container input[type="submit"]:hover {
+  background-color: #04473e;
+}
+.user-list {
+  margin-top: 10px;
+}
+
+.chat-container textarea {
+  float: left;
+  width: 90%;
+  padding: 0.5em;
+  font-size: 1.1em;
+  margin-top: 0.7em;   
+  margin-bottom: 0.5em;   
+  height:50px;
+  resize: none;
+  color: #04473e;
+
+}
+
+.chat-container .button {
+  margin-top: 0.7em;   
+  margin-bottom: 0.5em;  
+  height:45px;
+  float: right;
+}
+
+
+
+.user-container{
+  width: 100%;
+  content: "";
+  display: table;
+  clear: both;
+  background-color: #04473e;
+  transition: background-color 0.3s;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  padding: 8px;
+  cursor: pointer;
+  margin-left: 0;
+}
+
+.user-container .user-image
+{
+  display: inline;
+  float: left;
+}
+
+.user-link {
+  width: 82%;
+  color: white;
+  text-decoration: none;
+  display: inline;
+  float: left;
+  margin-top: 2px;
+}
+
+.user-container:hover {
+  background-color: #147064;
+}
+
+
+.user-container .user-name{
+  width: 82%;
+  display: inline;
+  float: left;
+}
+
+.user-container .user-image{
+  display: inline;
+  float: left;
+}
+
+
+/*Image settings part*/
+
+/* CSS for styling the file input */
+.file-label {
+  display: inline-block;
+  position: relative;
+  padding: 5px 15px;
+  background-color: #147064;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.file-label input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0; 
+  cursor: pointer;
+}
+
+/* Style for the button */
+input[name='uploadImg'] {
+  background-color: #147064;
+  color: #fff;
+  border: none;
+  padding: 0px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  height: 25px;
+}
+
+input[name='uploadImg']:hover {
+  background-color: #04473e;
+}
+
+.file-label:hover {
+  background-color: #04473e;
+}
+
+
+.topNav-search
+{
+  padding: 0px;
+  margin-block-end: 0em;
+}
+
+.topNav-search .search-input {
+  position: relative;
+}
+
+.topNav-search .search-input i {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #04473e; 
+  pointer-events: none; 
+} 
+
+
+
+
+
+.chat-container-username{
+  float: left;
+  margin-left: 20px;
+}
+
+.chat-container-image{
+  float: left;
+  position: relative;
+  top: 10px;
+}
+
+.chat-container-image img {
+  width: 50px;
+  height: 50px; 
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+.searching-profiles-container
+{
+  margin-bottom: 2%;
+  padding: 2%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #04473e;
+  position: relative;
+  width: 100%;
+  display: flex;
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.searching-profiles-container .profile-image
+{
+  float: left;
+  margin-right: 1em;
+  position: relative;
+  top: 0.4em;
+}
+
+.searching-profiles-container .profile-image img
+{
+  height: 4em;
+  width: 4em;
+}
+
+.firstLastName {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.2em;
+  align-items: center;
+  float: left;
+  margin-right: 1em;
+} 
+
+.short-descr
+{
+  margin-top: 0;
+  padding: 0;
+  color: white;
+  float: left;
+  margin-right: 3em;
+  margin-left: 1em;
+}
+.short-descr h4
+{
+  margin-top: 0;
+  color: white;
+  align-items: center;
+  display: inline;
+  margin-bottom: 0em;
+}
+
+.short-descr p{
+  text-align:left;
+  margin-left: 0em;
+}
+
+
+.request-view-buttons
+{
+  margin-top: 0em;
+  padding: 0;
+  float: right;
+  display: flex;
+  flex-direction: column;
+}
+.request-view-buttons .button
+{
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  width: 10em;
+  height: 2.5em;
+  display: block;
+}
+
+.request-view-buttons p
+{
+  margin-top: 0em;
+  color: white;
+}
+.request-view-buttons .user-link{
+  margin-top: 0.8em;
+  transition: color 0.3s;
+}
+
+.request-view-buttons .user-link:hover{
+  color: rgb(202, 202, 202);
+}
+
+
+.star-rating {
+  font-size: 2.5em;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.3s;
+  display: inline-block;
+}
+
+.star-rating:hover, .star-rating.active {
+  color: #04473e;
+}
+
+.average-rating {
+  font-size: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #04473e;
+}
+
+#userRating
+{
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

@@ -13,6 +13,7 @@ function send(id) {
     })
     .then(data => {
         console.log('Request successful:', data);
+        location.reload();
         // Handle the response if needed
     })
     .catch(error => {
@@ -40,6 +41,30 @@ function approve(id) {
         console.error('Error during POST request:', error);
 });
 }
+
+function refuse(id){
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('refuse.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+
+
 
 
 function showForm(userType) {
@@ -117,4 +142,13 @@ function showForm(userType) {
         if (storedScrollPosition !== null) {
             window.scrollTo(0, storedScrollPosition);
         }
+    }
+
+
+    function generateStarRatingDuplicate(rating) {
+        const maxRating=5;
+        const fullStars = '&#9733;'.repeat(Math.floor(rating));
+        const halfStar = (rating % 1 !== 0) ? '&#9733;' : '';
+        const emptyStars = '&#9734;'.repeat(Math.floor(maxRating - rating));
+        return `${fullStars}${halfStar}${emptyStars}`;
     }

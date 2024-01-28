@@ -3,28 +3,36 @@ require_once "./core/userDB.php";
 require_once "./core/utilities.php";
 include_once "./includes/head.php";
 
+forbidAccesNonLogged();
+
+include_once "./includes/topnav.php";
+
 $user = new User();
-if (isset($_GET['userId'])) {
-    $targetUserId = $_GET['userId'];
-    $user->markMessagesAsRead($_SESSION['uID'], $targetUserId);
-}
-$me= $user->getUsernameById($_SESSION['uID']); 
+$me= $user->selectDataGeneric('users',array('userId'),array($_SESSION['uID']))[0]; 
 $chatPartner;
 
-if (isset($_POST["submit"])) {
+if (isset($_POST["messageBody"]) || isset($_POST["sendMess"])) {
+
     $senderId = $_SESSION['uID'];
     $receiverId = $_POST['receiverId'];
-    $messageContent = $_POST['messageContent'];
-    $timestamp = date('Y-m-d H:i:s');
-    $status = "unread";
-    $user->updateMessage($senderId, $receiverId, $messageContent, $status, $timestamp);
-    header("Location: {$_SERVER['REQUEST_URI']}");
-    exit();
+    $messageBody = $_POST['messageBody'];
+
+    $_GET['userId']=$receiverId;
+
+    $cols=array('senderId','recieverId','body');
+    $values=array($senderId,$receiverId,$messageBody);
+
+    $user->insertDataGeneric( $cols, $values,'messages');
+}
+
+if (isset($_GET['userId'])) {
+    $targetUserId = $_GET['userId'];
+    $user->markMessageAsRead($_SESSION['uID'], $targetUserId);
 }
 
 if (isset($_POST["pretrazi"])) {
     $username = $_POST['searchUser'];
-    $chatPartner = $user->getUserIdByUsername($username);
+    $chatPartner = $user->selectDataGeneric('users',array('username'),array($username))[0];
 
     if ($chatPartner && $chatPartner['userId'] != $_SESSION['uID']) {
         $targetUserId = $chatPartner['userId'];
@@ -33,10 +41,10 @@ if (isset($_POST["pretrazi"])) {
     }
 }
 
-$data = $user->showOtherUsers($_SESSION['uID']);
+$usersData = $user->showOtherUsersTest($_SESSION['uID'],$_SESSION['userType']);
 
-if (!is_array($data)) {
-    $data = array();
+if (!is_array($usersData)) {
+    $usersData = array();
 }
 ?>
 
@@ -46,87 +54,59 @@ if (!is_array($data)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    <link rel="stylesheet" href="css/styleChat.css">
 </head>
 <body>
-<div id="users-container">
-    <?php echo $me['username'];
-    echo '<br>';
-    echo '<a href="index.php">Vratite se na glavnu strani</a>';?>
-    <form method="post" action="">
-        <input type="text" name="searchUser" placeholder="Pretrazite korisnika...">
-        <input type="submit" name="pretrazi" value="Pretrazi">
-    </form>
-    <?php
-    echo '<p><center>Korisnici</center></p>';
-    if (!empty($data)) {
-        echo '<div class="user-list">';
-        usort($data, function ($a, $b) {
-            return $b['unreadCount'] - $a['unreadCount'];
-        });
-        foreach ($data as $userData) {
-            $unreadCount = $user->countUnreadMessages($_SESSION['uID'], $userData['userId']);
-            $notificationIndicator = ($unreadCount > 0) ? '<span class="notification-indicator">!</span>' : '';
-            echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . $notificationIndicator . $userData['username'] . '</a><br>';
-        }
-        echo '</div>';
-    } else {
-        echo "No other users found.";
-    }
-    ?>
-</div>
-
-<div id="chat-container">
-    <?php
-    if (isset($targetUserId)) {
-        $chatPartner= $user->getUsernameById($targetUserId); 
-        echo "<h2> Razgovor sa ". $chatPartner["username"] ."</h2>";
-        $myMessages = $user->showMyMessages($_SESSION['uID'], $targetUserId);
-        $yourMessages = $user->showYourMessages($_SESSION["uID"], $targetUserId);
-
-        if (!is_array($myMessages)) {
-            $myMessages = [];
-        }
-
-        if (!is_array($yourMessages)) {
-            $yourMessages = [];
-        }
-
-        $allMessages = array_merge($myMessages, $yourMessages);
-        usort($allMessages, function ($a, $b) {
-            return strtotime($a['msg_date']) - strtotime($b['msg_date']);
-        });
-
-        if (!empty($allMessages)) {
-            foreach ($allMessages as $message) {
-                $messageContent = $message['msg_content'];
-                $messageDate = $message['msg_date'];
-                $messageClass = ($message['sender_id'] == $_SESSION['uID']) ? 'sent' : 'received';
-
-                echo "<div class='message $messageClass'>";
-                echo "<span class='message-content'>$messageContent</span>";
-                echo "<span class='message-date'>$messageDate</span>";
-                echo "</div>";
-            }
-        } else {
-            echo "<p>No messages found.</p>";
-        }
-        ?>
-        
-        <form action='' method='post' id="messageForm">
-            <input type='hidden' name='receiverId' value='<?php echo $targetUserId; ?>'>
-            <textarea name='messageContent' placeholder='Napisite poruku...'></textarea>
-            <input type='submit' name='submit' value='Posalji'>
-            <?php 
-                echo "<h2> Razgovor sa ". $chatPartner["username"] ."</h2>";
+<div class='row'>
+    <div class="users-container">
+        <div class="card">
+            <div class='row'>
+                <div class='chat-container-image'>
+                    <img src="./uploads/<?= $me['profileImagePath']?>" alt='User Icon'>
+                </div>
+                <div class='chat-container-username'>
+                    <h2><?= $me['firstName']." ".$me['lastName'] ?></h2>
+                </div>
+            </div>
+            <form method="post" action="<?=$_SERVER['PHP_SELF']?>" class="topNav-search">
+                <div class="search-input">
+                    <input type="text" name="searchUser" placeholder="Pretrazite korisnika..." class="textField">
+                    <i class="fas fa-search"></i>
+                </div>
+                    <input type="submit" name="performSearch" value="Pretrazi">
+            </form>
+            <?php
+                if (isset($_POST['performSearch']))
+                {
+                    $searchString=$_POST['searchUser'];
+                    $usersData=$user->searchForChatUsers($searchString,$_SESSION['uID'],$_SESSION['userType']);
+                }
+                displayDmUsers($usersData,$user);
             ?>
-        </form>
-        
-    <?php    
-    } ?>
+        </div>
+    </div>
+    <div class="chat-container">    
+        <div class="card">
+            <?php
+            if (isset($targetUserId)) {
+                displayUserDm($targetUserId,$user);
+            ?>
+                <form action='<?=$_SERVER["PHP_SELF"]?>' method='post' class="message-form">
+                    <input type='hidden' name='receiverId' value='<?php echo $targetUserId; ?>'>
+                    <div class='row'>
+                        <textarea name='messageBody' id='messageArea' placeholder='Napisite poruku...' class='textField'></textarea>
+                        <input type='submit' name='sendMess' value='Posalji' class="button">
+                    </div>
+                </form>
+
+            <?php    
+                } 
+            ?>
+        </div>
+    </div>
 </div>
 <script>
-    function scrollToBottom() {
+
+function scrollToBottom() {
         window.scrollTo(0, document.body.scrollHeight);
     }
 
@@ -134,7 +114,17 @@ if (!is_array($data)) {
         scrollToBottom();
     };
 
-</script>
+  document.getElementById("messageArea").addEventListener("keydown", function(event) {
+    if (event.key === "Enter" && event.shiftKey) {
+        // Allow the default behavior (create a new line)
+    } else if (event.key === "Enter") {
+        // Prevent the default behavior (form submission)
+        event.preventDefault();
 
+        // Trigger the form submission
+        document.querySelector(".message-form").submit();
+    }
+  });
+</script>
 </body>
 </html>

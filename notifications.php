@@ -40,7 +40,6 @@
                         $dataApproved=array();
                         $dataWaiting=array();
                         $requests=$_SESSION['container']->getRequests();
-                        var_dump($requests);
                         foreach($requests as $row)
                         {
                             if($row['approvedReciever'])
