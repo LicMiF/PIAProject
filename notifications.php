@@ -10,8 +10,7 @@
     <?php
         include_once "./includes/topnav.php";
         include_once "./includes/header.html";
-
-        updateContainer($_SESSION['container']);
+        updateContainer($_SESSION['container']); 
     ?>
     
     <div class="row">
@@ -19,17 +18,18 @@
             <div class="card">
                 <?php
                     $user=new User();
-                    if($_SESSION['userType'] === 1)
+                    if($_SESSION['userType'])
                     {
                         $dataApproved=array();
                         $dataWaiting=array();
                         $requests=$_SESSION['container']->getRequests();
-                        foreach($requests as $row)
-                        {
-                            if($row['approvedReciever'])
-                                $dataApproved[]=$user->getUserData($row['senderId']);
-                            else
-                                $dataWaiting[]=$user->getUserData($row['senderId']);
+                        if(!empty($requests)){
+                            foreach($requests as $row){
+                                if($row['approvedReciever'])
+                                    $dataApproved[]=$user->getUserData($row['senderId']);
+                                else
+                                    $dataWaiting[]=$user->getUserData($row['senderId']);
+                            }
                         }
 
 
@@ -40,14 +40,15 @@
                         $dataApproved=array();
                         $dataWaiting=array();
                         $requests=$_SESSION['container']->getRequests();
-                        foreach($requests as $row)
-                        {
-                            if($row['approvedReciever'])
-                                $dataApproved[]=$user->getUserData($row['recieverId']);
-                            else
-                                $dataWaiting[]=$user->getUserData($row['recieverId']);
+                        if(!empty($requests)){
+                            foreach($requests as $row)
+                            {
+                                if($row['approvedReciever'])
+                                    $dataApproved[]=$user->getUserData($row['recieverId']);
+                                else
+                                    $dataWaiting[]=$user->getUserData($row['recieverId']);
+                            }
                         }
-                        
                         displayNotificationsForUser($dataWaiting,$dataApproved);
                     }
 

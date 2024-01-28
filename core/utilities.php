@@ -499,7 +499,7 @@
     function updateContainer(&$container)
     {
         $requests= new Request();
-        if ($_SESSION['userType'] === 1)
+        if ($_SESSION['userType'])
         {
             $container->setRequests($requests->fetchRequestsMentor($_SESSION['uID']));
         }
@@ -554,17 +554,17 @@
     function displayNotificationsForUser($dataWaiting,$dataApproved)
     {
         if (empty($dataWaiting) && empty($dataApproved))
-            echo "<h1>There are no sent requests!</h1>";
+            echo "<h1>Nemate poslatih zahteva!</h1>";
         else
         {
             if(!empty($dataWaiting))
             {
-                echo "<h1>Sent requests waiting for approval:</h1>";
+                echo "<h1>Ceka se na odobrenje zahteva:</h1>";
                 displayBasicUserInfoNotificationsNoButtons($dataWaiting);
             }
             if(!empty($dataApproved))
             {
-                echo "<h1>Approved sent requests:</h1>";
+                echo "<h1>Zahtevi koji su odobreni:</h1>";
                 displayBasicUserInfoNotificationsNoButtons($dataApproved);
             }
         }
@@ -573,17 +573,17 @@
     function displayNotificationsForMentor($dataWaiting,$dataApproved)
     {
         if (empty($dataWaiting) && empty($dataApproved))
-            echo "<h1>There are no recieved requests :(</h1>";
+            echo "<h1>Nemate primljenih zahteva.</h1>";
         else
         {
             if(!empty($dataWaiting))
             {
-                echo "<h1>Requests waiting for your approval:</h1>";
+                echo "<h1>Zahtevi koji cekaju na odobrenje:</h1>";
                 displayBasicUserInfoNotificationsButtons($dataWaiting,1);
             }
             if(!empty($dataApproved))
             {
-                echo "<h1>Approved requests:</h1>";
+                echo "<h1>Prihvaceni zahtevi:</h1>";
                 displayBasicUserInfoNotificationsNoButtons($dataApproved);
             }
         }
@@ -762,8 +762,8 @@
                 return $b['unreadCount'] - $a['unreadCount'];
             });
             foreach ($usersData as $userData) {
-                // $unreadCount = $user->countUnreadMessages($_SESSION['uID'], $userData['userId']);
-                // $notificationIndicator = ($unreadCount > 0) ? '<span class="notification-indicator">!</span>' : '';
+                //$unreadCount = $user->countUnreadMessages($_SESSION['uID'], $userData['userId']);
+                //$notificationIndicator = ($unreadCount > 0) ? '<span class="notification-indicator">!</span>' : '';
                 echo "<div class='user-container'>";
                 echo "  <div class='user-image'>
                             <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
@@ -783,7 +783,7 @@
         echo "<h2>".$chatPartner['firstName']." ".$chatPartner['lastName']."</h2>";
         $myMessages = $user->showMyMessages($_SESSION['uID'], $targetUserId);
         $yourMessages = $user->showYourMessages($_SESSION["uID"], $targetUserId);
-        
+        $lastClass='a';
         if (!is_array($myMessages)) {
             $myMessages = [];
         }

@@ -28,6 +28,7 @@
     .button-container {
         display: flex;
         flex-direction: column;
+        margin-top:10px;
     }
 </style>
 
