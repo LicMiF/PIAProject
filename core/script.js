@@ -15,6 +15,9 @@ function send(id) {
         console.log('Request successful:', data);
         // Handle the response if needed
     })
+    .then(data => {
+        location.reload();
+    })
     .catch(error => {
         console.error('Error during POST request:', error);
 });

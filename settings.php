@@ -10,13 +10,26 @@
     include_once "./includes/header.html";
 ?>
 <body>
-
+    <script src="./core/maintainingPosition.js" defer></script>
     <?php
         $user = new User();
         if (isset($_POST['uploadImg'])) 
         {
             if (!verifyImageAndSaveImage($_SESSION['uID'], $user))
                 $errorstr = $user->displayErrors();
+        }
+        if(isset($_POST['changeAvailability']))
+        {
+            $fromHour=$_POST['fromHour'];
+            $fromMinutes=$_POST['fromMinutes'];
+            $fromAmPm=$_POST['fromAmPm'];
+            $toHour=$_POST['toHour'];
+            $toMinutes=$_POST['toMinutes'];
+            $toAmPm=$_POST['toAmPm'];
+            $value=implode('-',array($fromHour,$fromMinutes,$fromAmPm,$toHour,$toMinutes,$toAmPm));
+            $column=array('timeAvailability');
+
+            $user->updateDataGeneric('mentorSpecific',$column,array($value),array('userId'),array($_SESSION['uID']));
         }
     ?>
 
@@ -130,17 +143,31 @@
                 ?>    
             </div>
 
+            <?php 
+            
+
+            if($_SESSION['userType']==1){
+
+                echo '<div class="card">';
+                    include_once './includes/timeSelection.php';
+                echo '</div>';
+            } 
+            ?>
+
             <div class='card'>
-                <h2>Promenite profilnu sliku:</h2>
-                <form action="<?=$_SERVER['PHP_SELF']?>" method='post' enctype="multipart/form-data">
-                        <label for="image" class="file-label">
-                        Izaberi sliku
-                        <input type="file" name="image" id="image" accept="image/*" required>
-                        </label>
-                        <br>
-                        <input type="submit" name='uploadImg' value="Potvrdi izbor">
-                </form>
+                <div class="image-selection">
+                    <h2>Promenite profilnu sliku:</h2>
+                    <form action="<?=$_SERVER['PHP_SELF']?>" method='post' enctype="multipart/form-data">
+                            <label for="image" class="file-label">
+                            Izaberi sliku
+                            <input type="file" name="image" id="image" accept="image/*" required>
+                            </label>
+                            <br>
+                            <input type="submit" name='uploadImg' value="Potvrdi izbor" class="button">
+                    </form>
+                </div>
             </div>
+
         </div>
     </div>
     <?php

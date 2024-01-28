@@ -11,8 +11,13 @@
         <a href="../chat.php">Prepiske</a>
         <?php
                 }
+                if($_SESSION['userType']!=1)
+                {
         ?>
         <a href="../profileListing.php">Mentori</a>
+        <?php
+                }
+        ?>
         <a href="../notifications.php" style="float:right"><strong>Razmena vestina i znanja</strong></a>
         <div class="searcharea">
                 <form action="../profileListing.php" method='post' class='topNav-search'>

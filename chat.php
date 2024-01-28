@@ -30,16 +30,6 @@ if (isset($_GET['userId'])) {
     $user->markMessageAsRead($_SESSION['uID'], $targetUserId);
 }
 
-if (isset($_POST["pretrazi"])) {
-    $username = $_POST['searchUser'];
-    $chatPartner = $user->selectDataGeneric('users',array('username'),array($username))[0];
-
-    if ($chatPartner && $chatPartner['userId'] != $_SESSION['uID']) {
-        $targetUserId = $chatPartner['userId'];
-        echo "<script>window.location.href = '?userId=$targetUserId';</script>";
-        exit();
-    }
-}
 
 $usersData = $user->showOtherUsersTest($_SESSION['uID'],$_SESSION['userType']);
 
@@ -106,7 +96,7 @@ if (!is_array($usersData)) {
 </div>
 <script>
 
-function scrollToBottom() {
+    function scrollToBottom() {
         window.scrollTo(0, document.body.scrollHeight);
     }
 
@@ -114,17 +104,16 @@ function scrollToBottom() {
         scrollToBottom();
     };
 
-  document.getElementById("messageArea").addEventListener("keydown", function(event) {
-    if (event.key === "Enter" && event.shiftKey) {
-        // Allow the default behavior (create a new line)
-    } else if (event.key === "Enter") {
-        // Prevent the default behavior (form submission)
-        event.preventDefault();
+    document.getElementById("messageArea").addEventListener("keydown", function(event) {
+        if (event.key === "Enter" && event.shiftKey) {
 
-        // Trigger the form submission
-        document.querySelector(".message-form").submit();
-    }
-  });
+        } else if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            document.querySelector(".message-form").submit();
+        }
+    });
 </script>
 </body>
 </html>

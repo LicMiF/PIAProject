@@ -482,6 +482,15 @@
         }
     }
 
+    function forbidAccesMentors()
+    {
+        if($_SESSION['userType']==1)
+        {
+            header("Location: ./index.php");
+            exit();
+        }
+    }
+
 
     function fillTheContainer(&$container)
     {
@@ -749,6 +758,17 @@
                         </div>
                     </div>
                 </div>                          ";
+
+
+        $timeAvail=explode('-',$mentorSpecific['timeAvailability']);
+        echo "  <div class='profile-section'>
+                <h2>Mentor je dostupan u periodu:</h2>
+                <div class='profile-details'>
+                    <div class='detail-item'>
+                        <div class='detail-item-header' style='font-size:1.5em;'>".$timeAvail[0]." : ".$timeAvail[1]." ".$timeAvail[2]." - ".$timeAvail[3]." : ".$timeAvail[4]." ".$timeAvail[5]."</div>
+                    </div>
+                </div>
+            </div> <br>                         ";
         
     }
 
@@ -894,5 +914,51 @@
             else
                 $averageRating=NULL;
             return $averageRating;
+        }
+
+        function assertNotPast($date,$hours,$minutes,&$user)
+        {
+            $currentTime = new DateTime();
+            $targetTime = new DateTime($date);
+            $targetTime->setTime($hours, $minutes);
+
+            if($targetTime < $currentTime)
+            {
+                $user->appendError('Izabrano vreme je u prošlosti, molimo vas da odaberete prikladno vreme.');
+                return false;
+            }
+            return true;
+        }
+
+        function validateClassScheduling($date,$hours,$minutes,$class,$classDescr,$userId, &$user)
+        {
+            if(empty($date) || empty($hours) || empty($minutes) || empty($class) || empty($classDescr))
+            {
+                $user->appendError('Molimo vas da popunite sva polja pored kojih stoji *');
+                return false;
+            }
+
+            if(strlen($class)>100)
+                $user->appendError('Prekoračen je limit od 100 karaktera za naziv predmeta');
+
+            if(strlen($classDescr)>5000)
+                $user->appendError('Prekoračen je limit od 5000 karaktera za opis časa');
+
+            assertNotPast($date,$hours,$minutes,$user);
+
+            if(!$user->isEmptyErrors())
+                return false;
+
+
+            $classDate= implode('-',array($date, $hours,$minutes));
+            $columns=array('creatorId','className','classDescription','classDate');
+            $values=array($userId,$class,$classDescr,$classDate);
+            if(!($uID=$user->insertDataGeneric($columns,$values,'classes')))
+            {
+                $user->appendError('Greska na serveru, pokusajte ponovo :(');
+                return false;
+            }
+
+            return true;
         }
 ?>

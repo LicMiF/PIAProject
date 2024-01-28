@@ -456,14 +456,15 @@ class User{
             if($userType)
             {
                 $statement = $this->conn->prepare("SELECT *
-                FROM users
+                FROM users u
                 WHERE EXISTS (
                     SELECT 1
-                    FROM messages
-                    WHERE (recieverId = users.userId OR senderId = users.userId)
-                       AND (recieverId = ? OR senderId = ?)
+                    FROM messages m
+                    WHERE (m.recieverId = u.userId OR m.senderId = u.userId)
+                       AND (m.recieverId = :userId OR m.senderId = :userId) AND u.userType!=1
                 )");
-                $statement->execute([$userId,$userId]);
+                $statement->bindParam(':userId', $userId);
+                $statement->execute();
             }
             else
             {
@@ -471,7 +472,6 @@ class User{
                 $statement->execute();
             }
             $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-    
             return $result;
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -512,26 +512,21 @@ class User{
     {
         try {
             $searchCondition = "users.username LIKE :search OR users.firstName LIKE :search OR users.lastName LIKE :search";
-
             if ($userType) {
                 $statement = $this->conn->prepare("
-                    SELECT users.*, requests.*
+                    SELECT *
                     FROM users
-                    INNER JOIN requests ON users.userId = requests.senderId
-                    WHERE requests.recieverId = :userId AND requests.approvedReciever = 1
-                    AND ($searchCondition)
-                ");
+                    WHERE EXISTS (
+                        SELECT 1
+                        FROM messages
+                        WHERE (recieverId = users.userId OR senderId = users.userId)
+                            AND recieverId = :userId AND NOT recieverId=senderId AND ($searchCondition) AND users.userType!=1
+                )");
+                $statement->bindParam(':userId', $userId);
             } else {
-                $statement = $this->conn->prepare("
-                    SELECT users.*, requests.*
-                    FROM users
-                    INNER JOIN requests ON users.userId = requests.recieverId
-                    WHERE requests.senderId = :userId AND requests.approvedReciever = 1
-                    AND ($searchCondition)
-                ");
+                $statement = $this->conn->prepare("SELECT * FROM users where userType=1 and ($searchCondition)");
             }
 
-            $statement->bindParam(':userId', $userId);
             $searchString = "%$searchString%";
             $statement->bindParam(':search', $searchString);
 
@@ -586,6 +581,43 @@ class User{
             echo "Error";
             echo $e->getMessage();
             return false;
+        }
+    }
+
+
+    public function getMyRating($criticId,$ratedId)
+    {
+        try{            
+            $statement=$this->conn->prepare($this->generateAllSelectionQueryAndWhere('ratings',array('ratedId','criticId')));
+            $statement->execute([$ratedId,$criticId]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+            if($res)
+                return $res['rating'];
+            return 0;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return 0;
+        }
+    }
+
+    public function getUserType($userId)
+    {
+        try{            
+            $statement=$this->conn->prepare($this->generateAllSelectionQueryAndWhere('users',array('userId')));
+            $statement->execute([$userId]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+            if($res)
+                return $res['userType'];
+            return 0;
+        }
+        catch(PDOException $e)
+        {
+            echo "Error";
+            echo $e->getMessage();
+            return 0;
         }
     }
 }
