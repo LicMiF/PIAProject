@@ -3,64 +3,86 @@
 <?php
     require_once "./core/utilities.php";
     include_once "./includes/head.php";
-
-    forbidAccesNonLogged();
 ?>
 <body>
     <?php
         include_once "./includes/topnav.php";
         include_once "./includes/header.html";
-
-        updateContainer($_SESSION['container']);
     ?>
+    <script src="./core/maintainingPosition.js" defer></script>
+    <script>updateViewedNotifications();</script>
+    <?php
+        $notifications=NULL;
+        $user=new User();
+       
+        if(isset($_POST['deleteAll']))
+            $user->deleteDataGeneric('notifications',array('recieverId'),array($_SESSION['uID']));
+
+        $notificationsNotSeen=$user->selectDataGeneric('notifications',array('recieverId','viewed'),array($_SESSION['uID'],0));
+        $notificationsSeen=$user->selectDataGeneric('notifications',array('recieverId','viewed'),array($_SESSION['uID'],1));
+
+        usort($notificationsNotSeen,'compareNotifTimestamps');
+        usort($notificationsSeen,'compareNotifTimestamps');
+
+        $notifications=array_merge($notificationsNotSeen,$notificationsSeen);
+        
+    ?>
+
     
     <div class="row">
         <div class="leftcolumn">
             <div class="card">
                 <?php
                     $user=new User();
-                    if($_SESSION['userType'] === 1)
+
+                    if(empty($notifications))
                     {
-                        $dataApproved=array();
-                        $dataWaiting=array();
-                        $requests=$_SESSION['container']->getRequests();
-                        foreach($requests as $row)
-                        {
-                            if($row['approvedReciever'])
-                                $dataApproved[]=$user->getUserData($row['senderId']);
-                            else
-                                $dataWaiting[]=$user->getUserData($row['senderId']);
-                        }
-
-
-                        displayNotificationsForMentor($dataWaiting,$dataApproved);
+                        echo "<h1>Trenunto nemate obeveštenja...</h1>";
                     }
                     else
                     {
-                        $dataApproved=array();
-                        $dataWaiting=array();
-                        $requests=$_SESSION['container']->getRequests();
-                        foreach($requests as $row)
-                        {
-                            if($row['approvedReciever'])
-                                $dataApproved[]=$user->getUserData($row['recieverId']);
-                            else
-                                $dataWaiting[]=$user->getUserData($row['recieverId']);
-                        }
-                        
-                        displayNotificationsForUser($dataWaiting,$dataApproved);
-                    }
+                        ?>
+                            <form action="<?=$_SERVER['PHP_SELF']?>" method='post'>
+                            <div class="notification-delete-all">
+                                <h1>Obaveštenja</h1>
+                                <input type="submit" name="deleteAll" value="Obriši sve notifikacije" class='dangerButton'>
+                            </div>
+                            </form>
 
+                        <?php
+                        foreach ($notifications as $row)
+                        {
+                            $viewedColor='';
+
+                            if ($row['viewed']==1)
+                                $viewedColor="style='background-color: #aaa;'";
+
+                            echo "<div class='searching-profiles-container' $viewedColor>";
+                                echo "<div class='firstLastName'>";
+                                    echo "<h2>".$row['notificationHeader']."</h2>";
+                                echo "</div>";
+
+                                echo "<div class='short-descr'>";
+                                    echo "<p>".$row['notificationBody']."</p>";
+                                echo "</div>";
+
+                                echo "<div class='request-view-buttons'>";
+                                    echo "<input type='button' id=".$row['notificationId']." value='Ukloni' onclick='deleteNotification(this.id)' class='dangerButton'>";
+                                echo "</div>";
+
+                            echo "</div>";
+
+                        }
+                    }
                 ?>
             </div>
         </div>
-    
         <div class="rightcolumn">
             <div class="card">
                 <h2>Pocetna</h2>
                 <?php
                     $user=new User();
-                    if(isset($_SESSION['uID']))
+                    if(isset($_SESSION['uID'])) 
                     {
                         $data=$user->getUserData($_SESSION['uID']);
                         $_SESSION['userType']=$data['userType'];
@@ -81,6 +103,8 @@
         </div>
     </div>
     <?php
+        //Update the notifications to status viewed
+        markNotificationsAsRead();
         include_once "./includes/footer.html";
     ?>
 </body>

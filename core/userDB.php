@@ -188,6 +188,28 @@ class User{
         }
     }
 
+    public function deleteDataGeneric($table,$cols=NULL,$whereConds=NULL)
+    {
+        try {
+            if($whereConds)
+            {
+                $statement = $this->conn->prepare($this->generateDeleteAndWhereQuery($table,$cols));
+                $statement->execute($whereConds);
+            }
+            else
+                return false;
+            return true;
+
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+
 
     /*Inside values */
     public function updateDataGeneric($table,$cols,$vals,$whereCols=NULL,$whereConds=NULL)
@@ -375,6 +397,26 @@ class User{
     public function generateAllSelectionQueryAndWhere($tableName,$idNotation=NULL)
     {
         $query="SELECT * FROM $tableName";
+
+        if($idNotation)
+        {
+            $query.= " WHERE";
+            for($i=0; $i<count($idNotation ); $i++)
+            {
+                if ($i==(count($idNotation )-1))
+                {
+                    $query.= " ". $idNotation[$i]."=?";
+                    continue;
+                }
+                $query.= " ". $idNotation[$i]."=? and";
+            }
+        }
+        return $query;
+    }
+
+    public function generateDeleteAndWhereQuery($tableName,$idNotation=NULL)
+    {
+        $query="DELETE FROM $tableName";
 
         if($idNotation)
         {

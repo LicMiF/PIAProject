@@ -45,6 +45,66 @@ function approve(id) {
 }
 
 
+function cancelClass(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('cancelClass.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+
+
+function cancelClassCheck(id)
+{
+    if(window.confirm("Da li ste sigurni da želite da otkažete čas?"))
+        cancelClass(id);
+}
+
+function deleteNotification(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('deleteNotification.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+function updateViewedNotifications()
+{
+        var notificationCircle = document.getElementById('notificationCount');
+        if (notificationCircle) {
+            notificationCircle.style.display = 'none';
+        }
+}
+
+
+
 function showForm(userType) {
     var studentBtn = document.getElementById("studentBtn");
     var mentorBtn = document.getElementById("mentorBtn");

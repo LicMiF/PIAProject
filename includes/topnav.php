@@ -1,20 +1,34 @@
-
 <div class="topnav">
         <?php
                 if(isset($_SESSION['uID']))
                 {
         ?>
         <a href="#" onclick="viewProfile(<?=$_SESSION['uID']?>,<?=$_SESSION['userType']?>)">Profil</a>
-        <a href="../notifications.php">Notifikacije</a>
+        <a href="../notifications.php">
+                Notifikacije
+                <?php
+                        $user=new User();
+                        $unreadCount = count($user->selectDataGeneric('notifications',array('recieverId','viewed'),array($_SESSION['uID'],0)));
+                        if ($unreadCount > 0) {
+                                echo '<div class="notification-circle" id="notificationCount" > ' . $unreadCount . '</div>';
+                        }
+                ?>
+        </a>
         <a href="../test.php">test</a>
         <a href="../comments.php">Komentari</a>
         <a href="../chat.php">Prepiske</a>
         <?php
                 }
-                if($_SESSION['userType']!=1)
+                if($_SESSION['userType']==0 || $_SESSION['uID']==null)
                 {
         ?>
-        <a href="../profileListing.php">Mentori</a>
+                        <a href="../profileListing.php">Mentori</a>
+        <?php
+                }
+                else if($_SESSION['userType']==1)
+                {
+        ?>
+                        <a href="../classSched.php">Časovi</a>
         <?php
                 }
         ?>

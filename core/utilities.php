@@ -563,17 +563,17 @@
     function displayNotificationsForUser($dataWaiting,$dataApproved)
     {
         if (empty($dataWaiting) && empty($dataApproved))
-            echo "<h1>There are no sent requests!</h1>";
+            echo "<h1>Nemate poslatih zahteva!</h1>";
         else
         {
             if(!empty($dataWaiting))
             {
-                echo "<h1>Sent requests waiting for approval:</h1>";
+                echo "<h1>Zahtevi koji čekaju na odobrenje:</h1>";
                 displayBasicUserInfoNotificationsNoButtons($dataWaiting);
             }
             if(!empty($dataApproved))
             {
-                echo "<h1>Approved sent requests:</h1>";
+                echo "<h1>Odobreni zahtevi:</h1>";
                 displayBasicUserInfoNotificationsNoButtons($dataApproved);
             }
         }
@@ -582,17 +582,17 @@
     function displayNotificationsForMentor($dataWaiting,$dataApproved)
     {
         if (empty($dataWaiting) && empty($dataApproved))
-            echo "<h1>There are no recieved requests :(</h1>";
+            echo "<h1>Nemate upućenih zahteva</h1>";
         else
         {
             if(!empty($dataWaiting))
             {
-                echo "<h1>Requests waiting for your approval:</h1>";
+                echo "<h1>Zahtevi koji čekaju na vaše odobrenje:</h1>";
                 displayBasicUserInfoNotificationsButtons($dataWaiting,1);
             }
             if(!empty($dataApproved))
             {
-                echo "<h1>Approved requests:</h1>";
+                echo "<h1>Zahtevi koje ste prihvatili:</h1>";
                 displayBasicUserInfoNotificationsNoButtons($dataApproved);
             }
         }
@@ -959,6 +959,107 @@
                 return false;
             }
 
-            return true;
+            return $uID;
+        }
+
+        function sendClassScheduledNotifications($senderId,$classId)
+        {
+            $requests=new Request();
+            $user= new User();
+            $res=$requests->fetchRequestsMentor($senderId);
+
+            $classInfo=$user->selectDataGeneric('classes',array('classId'),array($classId))[0];
+            $mentorInfo=$user->selectDataGeneric('users',array('userId'),array($senderId))[0];
+
+            $notifHeader="Меntor ".$mentorInfo['firstName']." ".$mentorInfo['lastName']." "." je zakazao onlajn čas";
+            
+            $timeSched=explode('-',$classInfo['classDate']);
+
+            $notifHeader.=" ".$timeSched[2].".".$timeSched[1].".".$timeSched[0].". u ".$timeSched[3]."h i ".$timeSched[4]."m";
+
+            $notifBody="Obaveštavamo vas da je zakazan onljan čas iz predmeta ".$classInfo['className']." sa opisom: ".$classInfo['classDescription'];
+
+            foreach($res as $row)
+            {
+                if($row['approvedReciever'])
+                {
+                    $columns=array('recieverId','notificationHeader','notificationBody');
+                    $values=array($row['senderId'],$notifHeader,$notifBody);
+                    $user->insertDataGeneric($columns,$values,'notifications');
+                }
+            }
+
+            $notifHeader="Uspešno ste zakazali čas za predmet: ".$classInfo['className'];
+            $notifHeader.=" dana: ".$timeSched[2].".".$timeSched[1].".".$timeSched[0].". u ".$timeSched[3]." : ".$timeSched[4]." sati.";
+            $notifBody="Obaveštavamo vas da ste uspešno zakazali onljan čas iz predmeta ".$classInfo['className'] ." koji je trebalo da se održi ";
+
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($senderId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+
+        }
+
+        function sendClassCanceledNotifications($senderId,$classId)
+        {
+            $requests=new Request();
+            $user= new User();
+            $res=$requests->fetchRequestsMentor($senderId);
+
+            $classInfo=$user->selectDataGeneric('classes',array('classId'),array($classId))[0];
+            $mentorInfo=$user->selectDataGeneric('users',array('userId'),array($senderId))[0];
+
+            $notifHeader="Меntor ".$mentorInfo['firstName']." ".$mentorInfo['lastName']." "." je otkazao onlajn čas koji je trebalo da se održi:";
+            
+            $timeSched=explode('-',$classInfo['classDate']);
+
+            $notifHeader.=" ".$timeSched[2].".".$timeSched[1].".".$timeSched[0]." u ".$timeSched[3]."h i ".$timeSched[4]."m";
+
+            $notifBody="Obaveštavamo vas da je otkazan onljan čas iz predmeta ".$classInfo['className']." sa opisom: ".$classInfo['classDescription'];
+
+            foreach($res as $row)
+            {
+                if($row['approvedReciever'])
+                {
+                    $columns=array('recieverId','notificationHeader','notificationBody');
+                    $values=array($row['senderId'],$notifHeader,$notifBody);
+                    $user->insertDataGeneric($columns,$values,'notifications');
+                }
+            }
+
+            $notifHeader="Uspešno ste otkazali čas za predmet: ".$classInfo['className'];
+            $notifBody="Obaveštavamo vas da ste otkazali onljan čas iz predmeta ".$classInfo['className'] ." koji je trebalo da se održi ";
+            $notifBody.=" ".$timeSched[2].".".$timeSched[1].".".$timeSched[0].". u ".$timeSched[3]."h i ".$timeSched[4]."m";
+
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($senderId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+
+        }
+
+        function compareNotifTimestamps($a,$b)
+        {
+            $time1=strtotime($a['timestamp']);
+            $time2=strtotime($b['timestamp']);
+
+            return ($time2-$time1);
+        }
+
+
+        function compareClassesTimestamps($a,$b)
+        {
+            $time1 = strtotime(str_replace('-', '', $a['classDate']));
+            $time2 = strtotime(str_replace('-', '', $b['classDate']));
+
+            return ($time1 - $time2);
+        }
+
+        function markNotificationsAsRead()
+        {
+            $user=new User();
+            if($user->updateDataGeneric('notifications',array('viewed'),array(1),array('recieverId'),array($_SESSION['uID'])))
+                return true;
+            return false;
         }
 ?>
