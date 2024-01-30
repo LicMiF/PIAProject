@@ -435,6 +435,7 @@
     {
         
         $comment = trim($body);
+        $comment= htmlspecialchars($comment);
 
         if (empty($comment)) 
             $user->appendError('Komentari ne mogu biti prazni!');
@@ -798,8 +799,6 @@
                 return $b['unreadCount'] - $a['unreadCount'];
             });
             foreach ($usersData as $userData) {
-                // $unreadCount = $user->countUnreadMessages($_SESSION['uID'], $userData['userId']);
-                // $notificationIndicator = ($unreadCount > 0) ? '<span class="notification-indicator">!</span>' : '';
                 echo "<div class='user-container'>";
                 echo "  <div class='user-image'>
                             <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
@@ -1114,7 +1113,7 @@
                             else
                             {
                                 echo "<input type='button' id=".$row['userId']." value='Prihvati' onclick='approve(this.id)' class='button' >";
-                                echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='button' >";
+                                echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='dangerButton' >";
                             }
                         }
                     }
