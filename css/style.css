@@ -105,8 +105,13 @@
   .rightcolumn {
     float: left;
     width: 37%;
-    background-color: #04473e;
     padding-left: 20px;
+  }
+
+  .custom-column{
+    float: left;
+    width: 24%;
+    padding-left: 1em;
   }
   
   /* Fake image */
@@ -328,15 +333,33 @@
   border-radius: 5px;
   background-color: #04473e;
   position: relative;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .comment-header {
+  position: relative;
+  width: 100%;
   font-size: 1em;
   font-weight: bold;
   color: white;
   margin-bottom: 0.2em;
-  display: flex;
-  align-items: center;
+  display: block;
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.comment-header .user-image
+{
+  float: left;
+
+}
+
+.comment-header span
+{
+  margin-top: 0.2em;
+  float: left;
 }
 
 .user-image img {
@@ -1103,3 +1126,47 @@ input[name='uploadImg']:hover {
   height: 2em;
   display: block;
 }
+
+.custom-column .dangerButton
+{
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  width: 10em;
+  height: 2.5em;
+  display: block;
+}
+
+.additional-info h2
+{
+  text-align: center;
+  color: #04473e;
+}
+
+.additional-info .firstLastName h2
+{
+  color: white;
+}
+
+.comment-delete-link
+{
+  float: right;
+  color: red;
+  display: inline;
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: color  0.3s;
+  margin-top: 0em;
+  right: 0em;
+}
+
+.comment-delete-link:hover
+{
+  color: white;
+}
+
+.comment-delete-link:active
+{
+  color: white;
+}
+
+

@@ -41,7 +41,7 @@
                         $user= new User();
                         $profileId=$_SESSION['uID'];
                         $errorstr=NULL;
-                        if($_SESSION['userType']===0)
+                        if($_SESSION['userType']==0)
                             displayUserProfileDataUser($profileId,$user);
                         else
                             displayUserProfileDataMentor($profileId,$user);
@@ -77,7 +77,7 @@
 
                         $allOk;
 
-                        if($_SESSION['userType']===0)
+                        if($_SESSION['userType']==0)
                         {
                             $userSpecificData=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
                             
@@ -118,7 +118,7 @@
                             $errorstr=$user->displayErrors();
                         else
                         {
-                            header("Location: ".$_SERVER['PHP_SELF']);
+                            echo "<script> window.location.href = 'settings.php';</script>";
                             exit(); 
                         }
 
@@ -127,7 +127,7 @@
                     if(!$user->isEmptyErrors())
                         echo $errorstr;
 
-                    if($_SESSION['userType']===0)
+                    if($_SESSION['userType']==0)
                     {
                         $fields=array('Email'=>'mail','Ime'=>'firstName','Prezime'=>'lastName','Veštine'=>'skills','Obrazovanje'=>'education','Interesovanja'=>'iterests');
                         $types=array('text','text','text','text','text','text');

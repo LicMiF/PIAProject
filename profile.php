@@ -34,7 +34,7 @@
 
                         ?>
                         <?php 
-                        if($_SESSION['userType']==1 || ($user->getUserType($profileId)==1))
+                        if(($_SESSION['userType']==1  &&  ($_SESSION['uID']==$profileId)) || $user->getUserType($profileId)==1 )
                         {
                             if(isset($_SESSION['uID']) && ($_SESSION['uID']!=$profileId) && ($requests->isApproved($_SESSION['uID'],$profileId)))
                             {

@@ -491,6 +491,15 @@
         }
     }
 
+    function allowAdminOnly()
+    {
+        if($_SESSION['userType']!=2)
+        {
+            header("Location: ./index.php");
+            exit();
+        }
+    }
+
 
     function fillTheContainer(&$container)
     {
@@ -607,17 +616,24 @@
             echo '<div class="comment">';
 
             $senderData=$user->getUserData($comment['senderId']);
-
+            
             echo "  <div class='comment-header'>
                         <div class='user-image'>
                             <img src='./uploads/".$senderData['profileImagePath']."' alt='User Icon'>
                         </div>
-                        <span>".$senderData['firstName']." ".$senderData['lastName']."</span>
-                    </div>";//Add $senderData image
+                        <span>".$senderData['firstName']." ".$senderData['lastName']."</span>";
+                    
+
+                    if ($_SESSION['userType']==2)
+                    {
+                        echo '<a class="comment-delete-link" " href="" id="'. $comment['commentId'] .'" onclick="deleteComment(this.id)">Ukloni</a>';
+                    }
+                            
+                    echo "</div>";
 
             echo "  <div class='comment-body'>
-                        ".$comment['body']."
-                    </div>";
+                ".$comment['body']."
+            </div>";
 
 
             $dateTime = new DateTime($comment['timestamp']);
@@ -1062,4 +1078,211 @@
                 return true;
             return false;
         }
+
+
+        function listAllUserProfiles($row)
+        {
+            echo "<div class='searching-profiles-container'>";
+                echo "  <div class='profile-image'>
+                            <img src='./uploads/".$row['profileImagePath']."' alt='User Icon'>
+                        </div>";
+
+                echo "<div class='firstLastName'>";
+                    echo "<h2>".$row['firstName']." ".$row['lastName']."</h2>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Interesovanja </h4>";
+                    echo "<p>".$row['interests']."</p>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Obrazovanje </h4>";
+                    echo "<p>".$row['education']."</p>";
+                echo "</div>";
+
+            
+                echo "<div class='request-view-buttons'>";
+                    echo "<input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,0)' class='button'>";
+                    if(isset($_SESSION['uID']))
+                    {
+                        $requests=new Request();
+                        if($requests->requestExists($row['userId'],$_SESSION['uID']))
+                        {
+                            if($requests->isApproved($row['userId'],$_SESSION['uID']))
+                                echo "<p>Odobrili ste zahtev</p>";
+                            else
+                            {
+                                echo "<input type='button' id=".$row['userId']." value='Prihvati' onclick='approve(this.id)' class='button' >";
+                                echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='button' >";
+                            }
+                        }
+                    }
+                echo "</div>";
+            echo "</div>";
+        }
+
+        function listAllMentorProfiles($row)
+        {
+
+            echo "<div class='searching-profiles-container'>";
+                echo "  <div class='profile-image'>
+                            <img src='./uploads/".$row['profileImagePath']."' alt='User Icon'>
+                        </div>";
+
+                echo "<div class='firstLastName'>";
+                    echo "<h2>".$row['firstName']." ".$row['lastName']."</h2>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Znanje </h4>";
+                    echo "<p>".$row['knowledge']."</p>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Veštine </h4>";
+                    echo "<p>".$row['skills']."</p>";
+                echo "</div>";
+
+            
+                echo "<div class='request-view-buttons'>";
+                    echo "<input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,1)' class='button'>";
+                    if(isset($_SESSION['uID']))
+                    {
+                        $requests=new Request();
+                        if($requests->requestExists($_SESSION['uID'],$row['userId']))
+                        {
+                            if($requests->isApproved($_SESSION['uID'],$row['userId']))
+                                echo "<p>Uspostavljena razmena</p>";
+                            else
+                                echo "<p>Zahtev ceka odobrenje</p>";
+                        }
+                        else
+                            echo "<input type='button' id=".$row['userId']." value='Posalji zahtev' onclick='send(this.id)' class='button' >";
+                    }
+                echo "</div>";
+                if(isset($_SESSION['uID']))
+                {
+                    echo "<div class='request-view-buttons'>";
+                            echo '<a class="user-link" href="./chat.php?userId=' . $row['userId'] . '">Pošalji poruku</a>';                                
+                    echo "</div>";
+                }
+
+            echo "</div>";
+        }
+
+
+        function listAllPanelMentorProfiles($row)
+        {
+
+            echo "<div class='searching-profiles-container'>";
+                echo "  <div class='profile-image'>
+                            <img src='./uploads/".$row['profileImagePath']."' alt='User Icon'>
+                        </div>";
+
+                echo "<div class='firstLastName'>";
+                    echo "<h2>".$row['firstName']." ".$row['lastName']."</h2>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Znanje </h4>";
+                    echo "<p>".$row['knowledge']."</p>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Veštine </h4>";
+                    echo "<p>".$row['skills']."</p>";
+                echo "</div>";
+
+                // if($row['activate'])
+                //     echo '<a class="comment-delete-link" " href="" id="'. $row['userId'] .'" onclick="removeProfile(this.id,'.$row['userType'].')">Ukloni profil</a>';
+
+            
+                echo "<div class='request-view-buttons'>";
+                    if($row['activate'])
+                    {
+                        echo "<input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,1)' class='button'>";
+                        echo "<input type='button' id=".$row['userId']." value='Uredi profil' onclick='editProfile(this.id,1)' class='button' style='background-color:orange;'>";
+                        echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                    }
+                    else
+                    {
+                        echo "<input type='button' id=".$row['userId']." value='Aktiviraj nalog' onclick='activateProfile(this.id)' class='button' >";
+                        echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                    }
+                echo "</div>";
+            echo "</div>";
+        }
+
+
+        function listAllPanelUserProfiles($row)
+        {
+            echo "<div class='searching-profiles-container'>";
+                echo "  <div class='profile-image'>
+                            <img src='./uploads/".$row['profileImagePath']."' alt='User Icon'>
+                        </div>";
+
+                echo "<div class='firstLastName'>";
+                    echo "<h2>".$row['firstName']." ".$row['lastName']."</h2>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Interesovanja </h4>";
+                    echo "<p>".$row['interests']."</p>";
+                echo "</div>";
+
+                echo "<div class='short-descr'>";
+                    echo "<h4> Obrazovanje </h4>";
+                    echo "<p>".$row['education']."</p>";
+                echo "</div>";
+
+            
+                echo "<div class='request-view-buttons'>";
+                    if($row['activate'])
+                    {
+                        echo "<input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,0)' class='button'>";
+                        echo "<input type='button' id=".$row['userId']." value='Uredi profil' onclick='editProfile(this.id,0)' class='button' style='background-color:orange;'>";
+                        echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                    }
+                    else
+                    {
+                        echo "<input type='button' id=".$row['userId']." value='Aktiviraj nalog' onclick='activateProfile(this.id)' class='button' >";
+                        echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                    }
+                echo "</div>";
+            echo "</div>";
+        }
+
+
+        function displayUsersApprovedAndWaiting($data,&$user)
+        {
+            echo '<div class="user-list">';
+                foreach ($data as $row) {
+                    $userData=$user->getUserData($row['senderId']);
+                    echo "<div class='user-container'>";
+                    echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                            </div>";
+                    echo '<a class="user-link" href="" style="pointer-events: none;">'. $userData['firstName']." ".$userData['lastName'] . '</a><br>';
+                    echo "</div>";
+                }
+                echo "</div>";
+        }
+
+        function displayMentorsApprovedAndWaiting($data,&$user)
+        {
+            echo '<div class="user-list">';
+                foreach ($data as $row) {
+                    $userData=$user->getUserData($row['recieverId']);
+                    echo "<div class='user-container'>";
+                    echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                            </div>";
+                    echo '<a class="user-link" href="" style="pointer-events: none;">' . $userData['firstName']." ".$userData['lastName'] . '</a><br>';
+                    echo "</div>";
+                }
+                echo "</div>";
+        }
+
 ?>
+

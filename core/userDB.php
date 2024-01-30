@@ -299,10 +299,28 @@ class User{
         return password_hash($mail.microtime(),PASSWORD_ARGON2ID);
     }
 
-    public function getAllUserData()
+    public function getAllUserData($active=-1)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userType=0");
+            if($active!=-1)
+            {
+                $statement=$this->conn->prepare("
+                    SELECT users.*, userSpecific.userId AS userSpecificUserId, userSpecific.*
+                    FROM users
+                    LEFT JOIN userSpecific ON users.userId = userSpecific.userId
+                    WHERE users.userType = 0 and users.activate=:active"
+                );
+                $statement->bindParam(':active', $active);
+            }
+            else
+            {
+                $statement=$this->conn->prepare("
+                    SELECT users.*, userSpecific.userId AS userSpecificUserId, userSpecific.*
+                    FROM users
+                    LEFT JOIN userSpecific ON users.userId = userSpecific.userId
+                    WHERE users.userType = 0"
+                );
+            }
             $statement->execute();
             $res=$statement->fetchALL(PDO::FETCH_ASSOC);
             return $res;
@@ -315,16 +333,53 @@ class User{
         }
     }
 
-    public function getAllMentorData()
+    public function getAllMentorData($active=-1)
     {
         try{
-            $statement=$this->conn->prepare("SELECT * FROM users WHERE userType=1");
+            if($active!=-1)
+            {
+                $statement=$this->conn->prepare("
+                    SELECT users.*, mentorSpecific.*
+                    FROM users
+                    LEFT JOIN mentorSpecific ON users.userId = mentorSpecific.userId
+                    WHERE users.userType = 1 and users.activate=:active"
+                );
+                $statement->bindParam(':active', $active);
+            }
+            else
+            {
+                $statement=$this->conn->prepare("
+                    SELECT users.*, mentorSpecific.*
+                    FROM users
+                    LEFT JOIN mentorSpecific ON users.userId = mentorSpecific.userId
+                    WHERE users.userType = 1"
+                );
+            }
             $statement->execute();
             $res=$statement->fetchALL(PDO::FETCH_ASSOC);
             return $res;
         }
         catch(PDOException $e)
         {
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function getAllData()
+    {   
+        try {
+            $statement = $this->conn->prepare("
+                SELECT users.*, userSpecific.*, mentorSpecific.*
+                FROM users
+                LEFT JOIN userSpecific ON users.userId = userSpecific.userId AND users.userType = 0
+                LEFT JOIN mentorSpecific ON users.userId = mentorSpecific.userId AND users.userType = 1
+            ");
+            $statement->execute();
+            $res = $statement->fetchAll(PDO::FETCH_ASSOC);
+            return $res;
+        } catch (PDOException $e) {
             echo "Error";
             echo $e->getMessage();
             return false;
@@ -608,6 +663,58 @@ class User{
         }
     }
 
+    public function searchAll($searchString)
+    {
+        try {
+            $searchCondition = "users.username LIKE :search OR users.firstName LIKE :search OR users.lastName LIKE :search OR users.skills LIKE :search OR mentorSpecific.knowledge LIKE :search OR userSpecific.interests LIKE :search";
+    
+            $statement = $this->conn->prepare("
+                SELECT users.*, userSpecific.*, mentorSpecific.*
+                FROM users
+                LEFT JOIN userSpecific ON users.userId = userSpecific.userId AND users.userType = 0
+                LEFT JOIN mentorSpecific ON users.userId = mentorSpecific.userId AND users.userType = 1
+                WHERE ($searchCondition)
+            ");
+    
+            $searchString = "%$searchString%";
+            $statement->bindParam(':search', $searchString);
+    
+            $statement->execute();
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+            return $result;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function searchForOtherUsers($searchString)
+    {
+        try {
+            $searchCondition = "users.username LIKE :search OR users.firstName LIKE :search OR users.lastName LIKE :search OR users.skills LIKE :search OR userSpecific.interests LIKE :search";
+    
+            $statement = $this->conn->prepare("
+                SELECT users.*, userSpecific.*, requests*
+                FROM users
+                INNER JOIN userSpecific ON users.userId = userSpecific.userId
+                WHERE users.userType = 0 AND requests.recieverId=:recvId ($searchCondition)
+            ");
+    
+            $searchString = "%$searchString%";
+            $statement->bindParam(':search', $searchString);
+            $statement->bindParam(':recvId', $_SESSION['uID']);
+    
+            $statement->execute();
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+    
+            return $result;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
     public function isAlreadyRated($ratedId,$criticId)
     {
         try{            
@@ -661,7 +768,9 @@ class User{
             echo $e->getMessage();
             return 0;
         }
+
     }
 }
+
 
 ?>
