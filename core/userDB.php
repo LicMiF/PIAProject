@@ -371,10 +371,21 @@ class User{
     {   
         try {
             $statement = $this->conn->prepare("
-                SELECT users.*, userSpecific.*, mentorSpecific.*
-                FROM users
-                LEFT JOIN userSpecific ON users.userId = userSpecific.userId AND users.userType = 0
-                LEFT JOIN mentorSpecific ON users.userId = mentorSpecific.userId AND users.userType = 1
+                        SELECT
+                        users.*,
+                        userSpecific.education,
+                        userSpecific.interests,
+                        mentorSpecific.yearExp,
+                        mentorSpecific.knowledge,
+                        mentorSpecific.timeAvailability
+                        FROM
+                            users
+                        LEFT JOIN
+                            userSpecific ON users.userId = userSpecific.userId AND users.userType = 0
+                        LEFT JOIN
+                            mentorSpecific ON users.userId = mentorSpecific.userId AND users.userType = 1;
+
+
             ");
             $statement->execute();
             $res = $statement->fetchAll(PDO::FETCH_ASSOC);

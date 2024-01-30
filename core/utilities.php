@@ -160,6 +160,12 @@
             $user->appendError('Neispravna kombinacija Korisničko ime/ Šifra');
             return false;
         }
+
+        if(!($user->selectDataGeneric('users',array('userId'),array($uID)))[0]['activate'])
+        {
+            $user->appendError('Ispravni kredencijali, administrator još uvek nije aktivirao nalog.');
+            return false;
+        }
         return $uID;
     }
 
