@@ -32,7 +32,6 @@ if (isset($_GET['userId'])) {
 
 
 $usersData = $user->showOtherUsersTest($_SESSION['uID'],$_SESSION['userType']);
-var_dump($usersData);
 
 if (!is_array($usersData)) {
     $usersData = array();
@@ -116,5 +115,9 @@ if (!is_array($usersData)) {
         }
     });
 </script>
+<?php
+        //markMessagesAsRead();
+
+?>
 </body>
 </html>

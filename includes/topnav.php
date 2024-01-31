@@ -14,7 +14,14 @@
                                         }
                                 ?>
                         </a>
-                        <a href="chat.php">Prepiske</a>
+                        <a href="chat.php">Prepiske
+                                <?php
+                                        $unreadCount = count($user->selectDataGeneric('messages',array('recieverId','viewedReciever'),array($_SESSION['uID'],0)));
+                                        if ($unreadCount > 0) {
+                                                echo '<div class="notification-circle" id="notificationCount" > ' . $unreadCount . '</div>';
+                                        }
+                                ?>
+                        </a>
         <?php
                 }
                 if(isset($_SESSION['userType']))

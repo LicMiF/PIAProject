@@ -835,7 +835,7 @@
             $unread[] = $var;
         }
 
-        
+        // Sort $usersData based on $unread
         array_multisort($unread, SORT_DESC, $usersData);
         $i=0;
         echo '<div class="user-list">';
@@ -1119,6 +1119,14 @@
         {
             $user=new User();
             if($user->updateDataGeneric('notifications',array('viewed'),array(1),array('recieverId'),array($_SESSION['uID'])))
+                return true;
+            return false;
+        }
+
+        function markMessagesAsRead()
+        {
+            $user=new User();
+            if($user->updateDataGeneric('messages',array('viewedReciever'),array(1),array('recieverId'),array($_SESSION['uID'])))
                 return true;
             return false;
         }
