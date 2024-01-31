@@ -16,7 +16,7 @@ if (isset($_POST["messageBody"]) || isset($_POST["sendMess"])) {
     $senderId = $_SESSION['uID'];
     $receiverId = $_POST['receiverId'];
     $messageBody = $_POST['messageBody'];
-
+    $messageBody=strip_tags($messageBody);
     $_GET['userId']=$receiverId;
 
     $cols=array('senderId','recieverId','body');
@@ -32,6 +32,7 @@ if (isset($_GET['userId'])) {
 
 
 $usersData = $user->showOtherUsersTest($_SESSION['uID'],$_SESSION['userType']);
+var_dump($usersData);
 
 if (!is_array($usersData)) {
     $usersData = array();
@@ -70,7 +71,7 @@ if (!is_array($usersData)) {
                     $searchString=$_POST['searchUser'];
                     $usersData=$user->searchForChatUsers($searchString,$_SESSION['uID'],$_SESSION['userType']);
                 }
-                displayDmUsers($usersData,$user);
+                displayDmUsers($me,$usersData,$user);
             ?>
         </div>
     </div>

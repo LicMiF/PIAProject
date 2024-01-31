@@ -512,6 +512,12 @@
   border-radius: 5px;
 }
 
+.notification-indicator {
+  color: red;  /* Choose your preferred color */
+  font-weight: bold;
+  margin-right: 5px;  /* Adjust as needed */
+}
+
 .sent {
   background-color:  #04473e;
   color: #fff;

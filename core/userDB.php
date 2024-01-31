@@ -603,11 +603,11 @@ class User{
 
     public function countUnreadMessages($receiverId, $senderId) {
         try {
-            $statement = $this->conn->prepare("SELECT COUNT(*) AS unread_count FROM messages WHERE recieverId=? AND senderId=? AND viewedReciever=0");
+            $statement = $this->conn->prepare("SELECT COUNT(*) AS viewedReciever FROM messages WHERE recieverId=? AND senderId=? AND viewedReciever=0");
             $statement->execute([$receiverId, $senderId]);
             $result = $statement->fetch(PDO::FETCH_ASSOC);
     
-            return $result['unread_count'];
+            return $result['viewedReciever'];
     
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();

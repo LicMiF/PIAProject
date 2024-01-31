@@ -12,7 +12,7 @@
         <div class="leftcolumn">
             <div class="card">
                 <h2>Dobrodošli</h2>
-                <div class="fakeimg" style="height: 200px; background-image: url('uploads/znanje.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                <div class="fakeimg" style="height: 200px; background-image: url('css/znanje.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                 </div>
                 <p>U svetu gde se tehnologija neprestano razvija, stvaranje prostora za povezivanje ljudi i deljenje znanja postaje ključno. Cilj ove aplikacije je da omoguci efikasnu razmenu znanja i vestina.</p>
                 <p>Nudimo prostor kako za mentore tako i za one koji žele učiti. Različite potrebe korisnika odražene su kroz funkcionalnosti koje omogućavaju mentorstvo, razmenu resursa i umrežavanje.</p>

@@ -826,26 +826,35 @@
 
     /*Messages displaying */
 
-    function displayDmUsers($usersData,&$user)
-    {
-        if (!empty($usersData)) {
-            echo '<div class="user-list">';
-            usort($usersData, function ($a, $b) {
-                return $b['unreadCount'] - $a['unreadCount'];
-            });
-            foreach ($usersData as $userData) {
-                echo "<div class='user-container'>";
-                echo "  <div class='user-image'>
-                            <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
-                        </div>";
-                echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . $notificationIndicator . " " . $userData['firstName']." ".$userData['lastName'] . '</a><br>';
-                echo "</div>";
-            }
-            echo '</div>';
-        } else {
-            echo "Nemate nijednu uspostavljenu razmenu..";
+    function displayDmUsers($me, $usersData, &$user)
+{
+    if (!empty($usersData)) {
+        $unread = [];
+        for ($i = 0; $i < count($usersData); $i++) {
+            $var = $user->countUnreadMessages($me['userId'], $usersData[$i]['userId']);
+            $unread[] = $var;
         }
+
+        
+        array_multisort($unread, SORT_DESC, $usersData);
+        $i=0;
+        echo '<div class="user-list">';
+        foreach ($usersData as $userData) {
+            $notificationIndicator = ($unread[$i] !== '0') ? '<span class="notification-indicator">' . $unread[$i] . '</span>' : ' ';
+            echo "<div class='user-container'>";
+            echo "  <div class='user-image'>
+                        <img src='./uploads/" . $userData['profileImagePath'] . "' alt='User Icon'>
+                    </div>";
+            echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . " " . $userData['firstName'] . " " . $userData['lastName'] . "  " . $notificationIndicator . '</a><br>';
+            echo "</div>";
+            $i++;
+        }
+        echo '</div>';
+    } else {
+        echo "Nemate nijednu uspostavljenu razmenu..";
     }
+}
+
 
     function displayUserDm($targetUserId, &$user)
     {
@@ -869,11 +878,12 @@
 
         if (!empty($allMessages)) {
             $firstIter=true;
+            $lastClass='null';
             foreach ($allMessages as $message) {
                 $messageBody = $message['body'];
                 $messageDate = $message['timestamp'];
                 $messageClass = ($message['senderId'] == $_SESSION['uID']) ? 'sent' : 'received';
-
+                
                 if ($messageClass=='received' && (($lastClass!='received') || $firstIter)){
                     echo "<div class='message-row'>";
                     echo "  <div class='message-image'>
