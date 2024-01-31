@@ -5,12 +5,11 @@
     include_once "./includes/head.php";
 ?>
 <body>
-<script src="../core/maintainingPosition.js" defer></script>
     <?php
         include_once "./includes/topnav.php";
         include_once "./includes/header.html";
     ?>
-
+    <script src="./core/maintainingPosition.js" defer></script>
     <div class="row">
         <div class="leftcolumn">
             <div class="card">
@@ -20,6 +19,7 @@
                         $requests= new Request();
                         $profileId=$_POST['profileId'];
                         $errorstr=NULL;
+                        $data=$user->getUserData($profileId);
 
                         if($_POST['userType']==0)
                             displayUserProfileDataUser($profileId,$user);
@@ -32,47 +32,51 @@
                             if(!validateComments($body,$_SESSION['uID'],$profileId,$user))
                                 $errorstr=$user->displayErrors();
                         }
-                        
+
                         ?>
                         <?php 
-                        if(isset($_SESSION['uID']) && ($_SESSION['uID']!=$profileId) && ($requests->isApproved($_SESSION['uID'],$profileId)))
+                        if(($_SESSION['userType']==1  &&  ($_SESSION['uID']==$profileId)) || $user->getUserType($profileId)==1 )
                         {
-                        ?>
-                            <h2>Oceni mentora:</h2>
-                            <div id="userRating">
-                                <span class="star-rating" data-rating="1">&#9733;</span>
-                                <span class="star-rating" data-rating="2">&#9733;</span>
-                                <span class="star-rating" data-rating="3">&#9733;</span>
-                                <span class="star-rating" data-rating="4">&#9733;</span>
-                                <span class="star-rating" data-rating="5">&#9733;</span>
-                            </div>
-                        <?php 
-                        }
-                        ?>
-                        <h2>Prosečna ocena:</h2>
-                        <div id="averageRating" class="average-rating">
-                               <p>Mentor još uvek nema nijednu recenziju</p>
-                        </div>
-
-                        <?php 
-                                $averageRating=getAverageRating($profileId,$user);
-                                if($averageRating)
-                                {
-                                    ?>
-                                        <script defer>const averageRatingElementTemp = document.getElementById('averageRating'); averageRatingElementTemp.innerHTML = `${generateStarRatingDuplicate(parseFloat(<?=$averageRating?>))} <br> ${parseFloat(<?=$averageRating?>).toFixed(1)}`;</script>
-                                    <?php
+                            if(isset($_SESSION['uID']) && ($_SESSION['uID']!=$profileId) && ($requests->isApproved($_SESSION['uID'],$profileId)))
+                            {
+                                $myRating=$user->getMyRating($_SESSION['uID'],$profileId);
+                            ?>
+                                <h2>Oceni mentora:</h2>
+                                <div id="userRating">
+                                    <span class="star-rating" data-rating="1">&#9733;</span>
+                                    <span class="star-rating" data-rating="2">&#9733;</span>
+                                    <span class="star-rating" data-rating="3">&#9733;</span>
+                                    <span class="star-rating" data-rating="4">&#9733;</span>
+                                    <span class="star-rating" data-rating="5">&#9733;</span>
+                                </div>
+                            <?php 
                                 }
-                                ?>
+                            ?>
+                            <h2>Prosečna ocena:</h2>
+                            <div id="averageRating" class="average-rating">
+                                <p>Mentor još uvek nema nijednu recenziju</p>
+                            </div>
 
-            
-                    <h1 style="color:#04473e; text-align:center">Iskustva ostalih korisnika :</h1>
+                            <?php 
+                                    $averageRating=getAverageRating($profileId,$user);
+                                    if($averageRating)
+                                    {
+                                        ?>
+                                            <script defer>const averageRatingElementTemp = document.getElementById('averageRating'); averageRatingElementTemp.innerHTML = `<div class="average-rating-float"> ${parseFloat(<?=$averageRating?>).toFixed(1)} </div>${generateStarRatingDuplicate(parseFloat(<?=$averageRating?>))}`;</script>
+                                        <?php
+                                    }
+                                    ?>
 
-                    <?php 
-                        displayCommentsSection($profileId,$user);
-                        if($errorstr)
-                            echo $errorstr;
-                        if(isset($_SESSION['uID']) && ($_SESSION['uID']!=$profileId) && ($requests->isApproved($_SESSION['uID'],$profileId)))
-                            displayCommentForm($profileId,$_SERVER['PHP_SELF'],'post',$_POST['userType'],$user);
+                
+                        <h1 style="color:#04473e; text-align:center">Iskustva ostalih korisnika :</h1>
+
+                        <?php 
+                            displayCommentsSection($profileId,$user);
+                            if($errorstr)
+                                echo $errorstr;
+                            if(isset($_SESSION['uID']) && ($_SESSION['uID']!=$profileId) && ($requests->isApproved($_SESSION['uID'],$profileId)))
+                                displayCommentForm($profileId,$_SERVER['PHP_SELF'],'post',$_POST['userType'],$user);
+                        }
                     ?>
                 </div>
             </div>
@@ -105,8 +109,9 @@
     <script defer>
         const ratedId=<?php echo $profileId?>;
         const criticId=<?php echo $_SESSION['uID']?>;
+        let userRating = <?php echo $myRating?>;
     </script>
-    <script src="../core/rating.js" defer></script>
+    <script src="core/rating.js" defer></script>
     <?php
         include_once "./includes/footer.html";
     ?>

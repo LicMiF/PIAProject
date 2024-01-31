@@ -25,23 +25,6 @@ class Request extends User{
         }
     }
 
-    public function fetchApprovedRequests($id){
-        try{
-            $statement=$this->conn->prepare("SELECT * FROM requests WHERE recieverId=? AND approvedReciever=1");
-            $statement->execute([$id]);
-            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
-            if (empty($res))
-                return 0;
-            return $res;
-        }
-        catch(PDOException $e)
-        {
-            echo "Error";
-            echo $e->getMessage();
-            return 0;
-        }
-    }
-
     public function fetchRequestsMentor($uId)
     {
         try{
@@ -82,19 +65,6 @@ class Request extends User{
             echo $e->getMessage();
             return false;
         }
-    }
-
-    public function refuseRequest($uId,$mId){
-        try{
-            $statement=$this->conn->prepare("DELETE FROM requests WHERE senderId=? and recieverId=?");
-            $statement->execute([$uId,$mId]);
-
-        }catch(PDOException $e){
-            echo "Error";
-            echo $e->getMessage();
-            return false;
-        }
-
     }
 
 
@@ -169,7 +139,7 @@ class Request extends User{
         try{
             $statement=$this->conn->prepare("SELECT * from requests where senderId=? and recieverId=?");
             $statement->execute([$uId,$mId]);
-            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
             if($res)
                 return true;
             return false;

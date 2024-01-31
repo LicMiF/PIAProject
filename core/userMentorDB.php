@@ -80,10 +80,10 @@ class userMentor extends User{
             {
                 if ($i==(count($columns)-1))
                 {
-                    $columnsStr.=$colName."=?";
+                    $columnsStr.=$columns[$i]."=?";
                     continue;
                 }
-                $columnsStr.=$colName."=?, ";
+                $columnsStr.=$columns[$i]."=?, ";
             }
             array_push($values,$userId);
             $statement = $this->conn->prepare("UPDATE userSpecific SET " .$columnsStr. " WHERE userId=?");

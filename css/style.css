@@ -32,17 +32,29 @@
   /* Style the topnav links */
   .topnav a {
     float: left;
-    display: block;
+    display: flex; /* Use flexbox for better positioning */
+    align-items: center; /* Align items vertically in flex container */
     color: #f2f2f2;
-    text-align: center;
-    padding: 14px 16px;
     text-decoration: none;
+    padding: 14px 16px;
+    position: relative; /* Add relative positioning */
   }
   
   /* Change color on hover */
   .topnav a:hover {
     background-color: #1d574f;
     color: white;
+  }
+
+  /* Style the circle with the number */
+  .notification-circle {
+    background-color: #1d574f;
+    color: #ffffff;
+    border-radius: 50%;
+    padding: 0.2em 0.8em;
+    font-size: 0.75em; /* Adjust the font size as needed */
+    margin-left: 0.6em; /* Add margin to create space between text and circle */
+    cursor: pointer; /* Add cursor pointer for click */
   }
 
   .searcharea {
@@ -93,8 +105,13 @@
   .rightcolumn {
     float: left;
     width: 37%;
-    background-color: #04473e;
     padding-left: 20px;
+  }
+
+  .custom-column{
+    float: left;
+    width: 24%;
+    padding-left: 1em;
   }
   
   /* Fake image */
@@ -316,15 +333,33 @@
   border-radius: 5px;
   background-color: #04473e;
   position: relative;
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .comment-header {
+  position: relative;
+  width: 100%;
   font-size: 1em;
   font-weight: bold;
   color: white;
   margin-bottom: 0.2em;
-  display: flex;
-  align-items: center;
+  display: block;
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.comment-header .user-image
+{
+  float: left;
+
+}
+
+.comment-header span
+{
+  margin-top: 0.2em;
+  float: left;
 }
 
 .user-image img {
@@ -664,6 +699,7 @@
   border-radius: 5px;
   cursor: pointer;
   margin-bottom: 10px;
+  width: 30em;
 }
 
 .file-label input {
@@ -771,6 +807,7 @@ input[name='uploadImg']:hover {
 .firstLastName {
   font-size: 1em;
   font-weight: bold;
+  /* color: ; */
   color: white;
   margin-bottom: 0.2em;
   align-items: center;
@@ -851,6 +888,7 @@ input[name='uploadImg']:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   color: #04473e;
 }
 
@@ -859,4 +897,276 @@ input[name='uploadImg']:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
+.average-rating-float
+{
+  display: block;
+}
+
+
+/*Time selecting related style*/
+
+.availability-container {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.availability-container h2 {
+  color: #04473e;
+}
+
+.availability-container h3 {
+  color: #04473e;
+  margin: 0px;
+}
+
+.time-selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.availability-container select {
+  padding: 10px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  outline: none;
+  border-radius: 5px;
+  color: #04473e;
+  border: none;
+  background: #fff;
+}
+
+.availability-container select::placeholder{
+  color: #04473e;
+}
+
+.availability-container select:focus{
+  box-shadow: 0 0 0 3px #04473e;
+}
+
+
+.selecting-part{
+  margin: 0px;
+  padding:0px;
+}
+
+.time-selection-header{
+  top:0px;
+  margin-top: 0px;
+  padding:0px;
+}
+
+.availability-container .button{
+  width:13em;
+}
+
+
+.availability-container input[type="date"]
+{
+  width: 100%;
+  height: 40px;
+  background: #fff;
+  border: none;
+  outline: none;
+  padding-left: 3em;
+  border-radius: 5px;
+  color: #04473e;
+  padding-right: 3em;
+  transition: box-shadow 0.3s;
+  text-align: center;
+}
+
+.availability-container input[type="date"]::placeholder{
+  color: #04473e;
+}
+
+.availability-container input[type="date"]:focus{
+  box-shadow: 0 0 0 3px #04473e;
+} 
+
+.availability-container #classSched{
+  flex-direction: row;
+  margin: 0.8em;
+}
+
+.availability-container .label
+{ 
+  margin-right: 0em;
+  color:#04473e;
+}
+
+.availability-container textarea {
+  width: 100%;
+  padding: 0.5em;
+  font-size: 1.1em;
+  margin-top: 0.7em;   
+  margin-bottom: 0.5em;   
+  resize: none;
+  color: #04473e;
+
+}
+
+#classSched select
+{
+  width:6em;
+  text-align: center;
+}
+
+#classSched span
+{
+  font-size: large;
+  margin: 0em 0.5em;
+}
+
+
+#schedForm .textField
+{
+  width: 30em;
+  margin-left: 0em;
+}
+#schedForm .button{
+  width: 20em;
+}
+
+.image-selection h2{
+  color:#04473e;
+}
+
+.image-selection {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+}
+.image-selection .button{
+  width: 13em;
+  height: 2em
+}
+
+
+.scheduled-classes-container
+{
+  margin-bottom: 2%;
+  padding: 2%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #04473e;
+  position: relative;
+  width: 100%;
+  display: flex;
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.scheduled-class-name {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.4em;
+  align-items: center;
+  float: left;
+  margin-right: 10em;
+} 
+
+
+.notification-delete-all{
+  text-align: center;
+}
+
+.notification-delete-all .dangerButton
+{
+  float: right;
+  margin-top: 1.7em;
+}
+.notification-delete-all h1
+{
+  color: #04473e;
+  display: inline-block;
+  align-self: center;
+  vertical-align: middle; 
+  font-size: xx-large;
+}
+
+
+
+.dangerButton{
+  padding: 8px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: red;  
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.dangerButton:hover,
+.dangerButton:focus {
+  background-color: rgb(238, 3, 3);
+  color: white;
+}
+
+
+.request-view-buttons .dangerButton
+{
+  margin-top: 1.4em;
+  margin-bottom: 0.3em;
+  width: 5em;
+  height: 2em;
+  display: block;
+}
+
+.custom-column .dangerButton
+{
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  width: 10em;
+  height: 2.5em;
+  display: block;
+}
+
+.additional-info h2
+{
+  text-align: center;
+  color: #04473e;
+}
+
+.additional-info .firstLastName h2
+{
+  color: white;
+}
+
+.comment-delete-link
+{
+  float: right;
+  color: red;
+  display: inline;
+  text-decoration: none;
+  font-size: 0.9em;
+  transition: color  0.3s;
+  margin-top: 0em;
+  right: 0em;
+}
+
+.comment-delete-link:hover
+{
+  color: white;
+}
+
+.comment-delete-link:active
+{
+  color: white;
+}
+
+

@@ -13,8 +13,10 @@ function send(id) {
     })
     .then(data => {
         console.log('Request successful:', data);
-        location.reload();
         // Handle the response if needed
+    })
+    .then(data => {
+        location.reload();
     })
     .catch(error => {
         console.error('Error during POST request:', error);
@@ -42,7 +44,7 @@ function approve(id) {
 });
 }
 
-function refuse(id){
+function refuse(id) {
     const formData = new FormData();
     formData.append('id', id);
     fetch('refuse.php', {
@@ -63,7 +65,136 @@ function refuse(id){
 });
 }
 
+function deleteComment(id) {
 
+    const formData = new FormData();
+    formData.append('id', id);
+
+    fetch('deleteComment.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+
+
+function cancelClass(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('cancelClass.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+
+
+function cancelClassCheck(id)
+{
+    if(window.confirm("Da li ste sigurni da želite da otkažete čas?"))
+        cancelClass(id);
+}
+
+function deleteNotification(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('deleteNotification.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+function activateProfile(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('activateProfile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+function removeProfile(id,userType) {
+
+
+    if(!window.confirm("Da li ste sigurni da želite da obrišete nalog?"))
+        return;
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('userType', userType);
+    fetch('removeProfile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+
+function updateViewedNotifications()
+{
+        var notificationCircle = document.getElementById('notificationCount');
+        if (notificationCircle) {
+            notificationCircle.style.display = 'none';
+        }
+}
 
 
 
@@ -125,6 +256,38 @@ function showForm(userType) {
         document.body.appendChild(form);
         form.submit();
     }
+
+
+    function editProfile(id, userType)
+    {
+
+        var postData = {
+            profileId: id,
+            userType: userType,
+        };
+
+        var urlEncodedData = new URLSearchParams(postData).toString();
+
+        var phpScriptUrl = 'editProfile.php';
+
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = phpScriptUrl;
+
+        for (var key in postData) {
+            if (postData.hasOwnProperty(key)) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = postData[key];
+                form.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
 
 
     function maintainScrollPosition()

@@ -4,7 +4,7 @@
     require_once "./core/utilities.php";
     include_once "./includes/head.php";
 
-    forbidAccesNonLogged();
+    allowAdminOnly();
 
     include_once "./includes/topnav.php";
     include_once "./includes/header.html";
@@ -13,23 +13,17 @@
     <script src="./core/maintainingPosition.js" defer></script>
     <?php
         $user = new User();
-        if (isset($_POST['uploadImg'])) 
+        if (isset($_POST['profileId']))
         {
-            if (!verifyImageAndSaveImage($_SESSION['uID'], $user))
-                $errorstr = $user->displayErrors();
+            $userId=$_POST['profileId'];
+            $userType=$_POST['userType'];
+            $_SESSION['adminEditingProfileId']=$userId;
+            $_SESSION['adminEditingProfileType']=$userType;
         }
-        if(isset($_POST['changeAvailability']))
+        else
         {
-            $fromHour=$_POST['fromHour'];
-            $fromMinutes=$_POST['fromMinutes'];
-            $fromAmPm=$_POST['fromAmPm'];
-            $toHour=$_POST['toHour'];
-            $toMinutes=$_POST['toMinutes'];
-            $toAmPm=$_POST['toAmPm'];
-            $value=implode('-',array($fromHour,$fromMinutes,$fromAmPm,$toHour,$toMinutes,$toAmPm));
-            $column=array('timeAvailability');
-
-            $user->updateDataGeneric('mentorSpecific',$column,array($value),array('userId'),array($_SESSION['uID']));
+            $userId=$_SESSION['adminEditingProfileId'];
+            $userType=$_SESSION['adminEditingProfileType'];
         }
     ?>
 
@@ -39,12 +33,15 @@
                 <div class="profile-container">
                     <?php 
                         $user= new User();
-                        $profileId=$_SESSION['uID'];
+                        $profileId=$userId;
                         $errorstr=NULL;
-                        if($_SESSION['userType']==0)
+                        if($userType==0)
                             displayUserProfileDataUser($profileId,$user);
                         else
+                        {
                             displayUserProfileDataMentor($profileId,$user);
+                            displayCommentsSection($profileId,$user);
+                        }
                         ?>
                 </div>
             </div>
@@ -62,7 +59,6 @@
                         $skills=$_POST['skills'];
 
                         $userData=$user->selectDataGeneric('users',array('userId'),array($profileId))[0];
-                        
 
                         if(empty($mail))
                             $mail=$userData['mail'];
@@ -78,19 +74,19 @@
 
                         $allOk;
 
-                        if($_SESSION['userType']==0)
+                        if($userType==0)
                         {
                             $userSpecificData=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
                             $education=$_POST['education'];
-                            $interests=$_POST['interests'];
+                            $interests=$_POST['interests'];                            
                             if(empty($_POST['education']))
                                 $education=$userSpecificData['education'];
 
                             if(empty($_POST['interests']))
                                 $interests=$userSpecificData['interests'];
-                            
-                            
-                            $allOk=validateSettingsChangeUser($mail,$firstName,$lastName,$skills,$education,$interests,$_SESSION['uID'],$user);
+ 
+                                
+                            $allOk=validateSettingsChangeUser($mail,$firstName ,$lastName,$skills,$education,$interests,$profileId,$user);
                             
                         }
                         else
@@ -107,13 +103,13 @@
                             else
                                 $yearExp=$_POST['yearExp'];
 
-                            $allOk=validateSettingsChangeMentor($mail,$firstName,$lastName,$skills,$yearExp,$knowledge,$_SESSION['uID'],$user);
+                            $allOk=validateSettingsChangeMentor($mail,$firstName ,$lastName,$skills,$yearExp,$knowledge,$profileId,$user);
                         }
                         if(!$allOk)
                             $errorstr=$user->displayErrors();
                         else
                         {
-                            echo "<script> window.location.href = 'settings.php';</script>";
+                            echo "<script> window.location.href = 'editProfile.php';</script>";
                             exit(); 
                         }
 
@@ -122,7 +118,7 @@
                     if(!$user->isEmptyErrors())
                         echo $errorstr;
 
-                    if($_SESSION['userType']==0)
+                    if($userType==0)
                     {
                         $fields=array('Email'=>'mail','Ime'=>'firstName','Prezime'=>'lastName','Veštine'=>'skills','Obrazovanje'=>'education','Interesovanja'=>'interests');
                         $types=array('text','text','text','text','text','text');
@@ -137,32 +133,6 @@
                     renderForm($fields,$types,$submit,$action,$method);
                 ?>    
             </div>
-
-            <?php 
-            
-
-            if($_SESSION['userType']==1){
-
-                echo '<div class="card">';
-                    include_once './includes/timeSelection.php';
-                echo '</div>';
-            } 
-            ?>
-
-            <div class='card'>
-                <div class="image-selection">
-                    <h2>Promenite profilnu sliku:</h2>
-                    <form action="<?=$_SERVER['PHP_SELF']?>" method='post' enctype="multipart/form-data">
-                            <label for="image" class="file-label">
-                            Izaberi sliku
-                            <input type="file" name="image" id="image" accept="image/*" required>
-                            </label>
-                            <br>
-                            <input type="submit" name='uploadImg' value="Potvrdi izbor" class="button">
-                    </form>
-                </div>
-            </div>
-
         </div>
     </div>
     <?php
