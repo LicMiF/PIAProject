@@ -23,8 +23,7 @@
     }
 
 
-    /* Values of radio are by default stored in radio[] array*/
-    /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
+    
     function renderFormWithPasswordStrengthCheckAndRadios($fields,$types,$submit,$action,$method,$radios)
     {
 
@@ -84,8 +83,7 @@
     }
 
 
-    /* Values of radio are by default stored in radio[] array*/
-    /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
+    
     function renderFormRegistrationSpecific($fields,$types,$studentSpecific,$mentorSpecific,$submit,$action,$method)
     {
 
@@ -347,14 +345,14 @@
     function validateSettingsChangeUser($mail,$firstName ,$lastName,$skills,$education,$interests,$uID,&$user)
     {
 
-        //DODATO
+        
         $mail=strip_tags($mail);
         $firstName=strip_tags($firstName);
         $lastName=strip_tags($lastName);
         $skills=strip_tags($skills);
         $education=strip_tags($education);
         $interests=strip_tags($interests);
-        //DODATO
+        
 
         if ($mail !== $user->getUserMail($uID))
         {   
@@ -407,14 +405,14 @@
 
     function validateSettingsChangeMentor($mail,$firstName ,$lastName,$skills,$yearExp,$knowledge,$uID,&$user)
     {
-        //DODATI DEO
+        
         $mail=strip_tags($mail);
         $firstName=strip_tags($firstName);
         $lastName=strip_tags($lastName);
         $skills=strip_tags($skills);
         $yearExp=strip_tags($yearExp);
         $knowledge=strip_tags($knowledge);
-        //DODATI DEO
+        
         if ($mail !== $user->getUserMail($uID))
         {   
             if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
@@ -1230,8 +1228,7 @@
                     echo "<p>".$row['skills']."</p>";
                 echo "</div>";
 
-                // if($row['activate'])
-                //     echo '<a class="comment-delete-link" " href="" id="'. $row['userId'] .'" onclick="removeProfile(this.id,'.$row['userType'].')">Ukloni profil</a>';
+                
 
             
                 echo "<div class='request-view-buttons'>";

@@ -225,7 +225,7 @@ class User{
 
 
 
-    /*Inside values */
+    
     public function updateDataGeneric($table,$cols,$vals,$whereCols=NULL,$whereConds=NULL)
     {
         try {
@@ -401,7 +401,6 @@ class User{
     }
 
 
-    /*Helper functions*/
 
 
     public function generateUpdateAndWhereQuery($tableName,$columns,$whereCols=NULL)
@@ -503,7 +502,6 @@ class User{
         return $query;
     }
 
-/* Messages related */
 
     public function showMyMessages($id,$target){
         try{
@@ -609,16 +607,14 @@ class User{
             $statement->execute([$receiverId, $senderId]);
             $result = $statement->fetch(PDO::FETCH_ASSOC);
     
-            // Return the count of unread messages
             return $result['unread_count'];
     
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
-            return 0; // Return 0 in case of an error
+            return 0; 
         }
     }
 
-    /*Search related code*/
     public function searchForChatUsers($searchString,$userId,$userType)
     {
         try {

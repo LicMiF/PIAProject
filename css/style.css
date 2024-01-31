@@ -9,7 +9,7 @@
     background-color: #04473e;
   }
   
-  /*THIS IS WHEERE ASDASDASd Header/Blog Title */
+  
   .header {
     padding: 30px;
     text-align: center;
@@ -20,7 +20,7 @@
     font-size: 50px;
   }
   
-  /* Style the top navigation bar */
+ 
   .topnav {
     top: 0;
     position:sticky;
@@ -29,32 +29,32 @@
     z-index: 100;
   }
   
-  /* Style the topnav links */
+  
   .topnav a {
     float: left;
-    display: flex; /* Use flexbox for better positioning */
-    align-items: center; /* Align items vertically in flex container */
+    display: flex; 
+    align-items: center; 
     color: #f2f2f2;
     text-decoration: none;
     padding: 14px 16px;
-    position: relative; /* Add relative positioning */
+    position: relative; 
   }
   
-  /* Change color on hover */
+  
   .topnav a:hover {
     background-color: #1d574f;
     color: white;
   }
 
-  /* Style the circle with the number */
+  
   .notification-circle {
     background-color: #1d574f;
     color: #ffffff;
     border-radius: 50%;
     padding: 0.2em 0.8em;
-    font-size: 0.75em; /* Adjust the font size as needed */
-    margin-left: 0.6em; /* Add margin to create space between text and circle */
-    cursor: pointer; /* Add cursor pointer for click */
+    font-size: 0.75em; 
+    margin-left: 0.6em; 
+    cursor: pointer; 
   }
 
   .searcharea {
@@ -94,14 +94,13 @@
   
   
   	
-  /* Create two unequal columns that floats next to each other */
-  /* Left column */
+  
   .leftcolumn {   
     float: left;
     width: 63%;
   }
   
-  /* Right column */
+  
   .rightcolumn {
     float: left;
     width: 37%;
@@ -114,28 +113,28 @@
     padding-left: 1em;
   }
   
-  /* Fake image */
+  
   .fakeimg {
     background-color: #aaa;
     width: 100%;
     padding: 20px;
   }
   
-  /* Add a card effect for articles */
+  
   .card {
     background-color: white;
     padding: 20px;
     margin-top: 20px;
   }
   
-  /* Clear floats after the columns */
+  
   .row::after {
     content: "";
     display: table;
     clear: both;
   }
   
-  /* Footer */
+  
   .footer {
     padding: 20px;
     text-align: center;
@@ -143,7 +142,6 @@
     margin-top: 20px;
   }
   
-  /* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
   @media screen and (max-width: 800px) {
     .leftcolumn, .rightcolumn {   
       width: 100%;
@@ -151,7 +149,7 @@
     }
   }
   
-  /* Responsive layout - when the screen is less than 400px wide, make the navigation links stack on top of each other instead of next to each other */
+  
   @media screen and (max-width: 400px) {
     .topnav a {
       float: none;
@@ -161,7 +159,7 @@
 
 
 
-  /*Password checking related code*/
+  
 
 .input {
   position: relative;
@@ -285,7 +283,7 @@
 }
 
 
-/*Registration form specific styling*/
+
 .choice {
   width: 100%;
   margin: 10px 0px; 
@@ -306,12 +304,12 @@
 
 #studentBtn {
   color: white;
-  background-color: #04473e; /* Green */
+  background-color: #04473e; 
 }
 
 #mentorBtn {
   color: #04473e;
-  background-color: white; /* Blue */
+  background-color: white; 
 }
 
 .form-section {
@@ -324,7 +322,7 @@
 
 
 
-/*Comment section styling*/
+
 
 .comment {
   margin-bottom: 2%;
@@ -424,10 +422,6 @@
 }
 
 
-
-
-/*Profile related style*/
-
 .profile-container {
   width: 100%;
   margin: 0;
@@ -451,8 +445,8 @@
 }
 
 .profile-image img {
-  width: 100px; /* Adjust the width as needed */
-  height: 100px; /* Adjust the height as needed */
+  width: 100px; 
+  height: 100px; 
   border-radius: 50%;
   margin-bottom: 10px;
 }
@@ -494,10 +488,6 @@
       width: 90%;
   }
 }
-
-
-
-/*Chat related styling*/
 
 .chat-container {   
   float: left;
@@ -686,9 +676,6 @@
 }
 
 
-/*Image settings part*/
-
-/* CSS for styling the file input */
 .file-label {
   display: inline-block;
   position: relative;
@@ -714,7 +701,6 @@
   cursor: pointer;
 }
 
-/* Style for the button */
 input[name='uploadImg'] {
   background-color: #147064;
   color: #fff;
@@ -903,9 +889,6 @@ input[name='uploadImg']:hover {
 {
   display: block;
 }
-
-
-/*Time selecting related style*/
 
 .availability-container {
   font-family: 'Arial', sans-serif;

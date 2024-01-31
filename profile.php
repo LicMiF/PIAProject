@@ -84,11 +84,11 @@
     
         <div class="rightcolumn">
             <div class="card">
-                <h2>Pocetna</h2>
+                <h2>Prozor za izmenu podataka.</h2>
                 <?php
                     if(isset($_SESSION['uID']))
                     {
-                        echo '<h2> Hello '.$data['firstName'].'</h2>';
+                        echo '<h2>Korisnik: '.$data['firstName'].'</h2>';
                     ?>
                     <a href="./changePass.php">Promeni sifru</a> </br>
                     <a href="./settings.php">Podesavanja</a>

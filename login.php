@@ -11,11 +11,11 @@
     <div class="row">
         <div class="leftcolumn">
             <div class="card">
-                <h2>TITLE HEADING</h2>
-                <h5>Title description, Dec 7, 2017</h5>
-                <div class="fakeimg" style="height:200px;">Image</div>
-                <p>Some text..</p>
-                <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+                <h2>Dobrodošli</h2>
+                <div class="fakeimg" style="height: 200px; background-image: url('uploads/znanje.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                </div>
+                <p>U svetu gde se tehnologija neprestano razvija, stvaranje prostora za povezivanje ljudi i deljenje znanja postaje ključno. Cilj ove aplikacije je da omoguci efikasnu razmenu znanja i vestina.</p>
+                <p>Nudimo prostor kako za mentore tako i za one koji žele učiti. Različite potrebe korisnika odražene su kroz funkcionalnosti koje omogućavaju mentorstvo, razmenu resursa i umrežavanje.</p>
             </div>
         </div>
     
