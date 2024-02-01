@@ -187,6 +187,72 @@ function removeProfile(id,userType) {
 });
 }
 
+function handleLike(commentId,senderId) {
+    const formData = new FormData();
+    formData.append('commentId', commentId);
+    formData.append('senderId', senderId);
+    fetch('updateLikes.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+
+function handleDislike(commentId,senderId) {
+    const formData = new FormData();
+    formData.append('commentId', commentId);
+    formData.append('senderId', senderId);
+    fetch('updateDislikes.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
+function activateProfile(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('activateProfile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
 
 function updateViewedNotifications()
 {
