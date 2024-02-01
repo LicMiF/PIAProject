@@ -258,6 +258,27 @@ async function handleReadMessages(Id) {
 }
 
 
+function upgradeToAdmin(id) {
+    const formData = new FormData();
+    formData.append('id', id);
+    fetch('upgradeUserToAdmin.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error during POST request:', error);
+});
+}
+
 
 function activateProfile(id) {
     const formData = new FormData();

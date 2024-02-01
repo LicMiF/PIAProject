@@ -1337,3 +1337,113 @@ input[name='uploadImg']:hover {
   float: left;
   margin-left: 1em;
 }
+
+
+
+
+
+
+
+
+
+
+
+.searching-profiles-container-custom
+{
+  margin-bottom: 2%;
+  padding: 2%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #04473e;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.searching-profiles-container-custom .profile-image
+{
+  float: left;
+  margin-right: 1em;
+  position: relative;
+  top: 0.4em;
+}
+
+.searching-profiles-container-custom .profile-image img
+{
+  height: 4em;
+  width: 4em;
+}
+
+.firstLastName-custom {
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.2em;
+  align-items: center;
+  float: left;
+  margin-right: 1em;
+} 
+
+.short-descr-custom
+{
+  margin-top: 0;
+  padding: 0;
+  color: rgb(255, 136, 0);
+  float: left;
+  margin-right: 3em;
+  margin-left: 1em;
+}
+.short-descr-custom h4
+{
+  margin-top: 0;
+  color: white;
+  align-items: center;
+  display: inline;
+  margin-bottom: 0em;
+}
+
+.short-descr-custom p{
+  text-align:left;
+  margin-left: 0em;
+}
+
+
+.request-view-buttons-custom
+{
+  margin-top: 0em;
+  padding: 0;
+  float: right;
+  display: flex;
+  flex-direction: row;
+}
+
+.request-view-buttons-custom1col
+{
+  width: 48%;
+  margin: 0em 0.3em;
+}
+
+.request-view-buttons-custom2col
+{
+  width: 48%;
+  margin: 0em 0.3em;
+}
+
+.request-view-buttons-custom .button
+{
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  width: 100%;
+  height: 2.5em;
+  display: block;
+}
+
+.request-view-buttons-custom .dangerButton
+{
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+  width: 100%;
+  height: 2.5em;
+  display: block;
+}

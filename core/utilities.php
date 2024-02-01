@@ -1331,37 +1331,46 @@
         function listAllPanelMentorProfiles($row)
         {
 
-            echo "<div class='searching-profiles-container'>";
+            echo "<div class='searching-profiles-container-custom'>";
+                echo "<div class='userInfoSome'>";
                 echo "  <div class='profile-image'>
                             <img src='./uploads/".$row['profileImagePath']."' alt='User Icon'>
                         </div>";
 
-                echo "<div class='firstLastName'>";
+                echo "<div class='firstLastName-custom'>";
                     echo "<h2>".$row['firstName']." ".$row['lastName']."</h2>";
                 echo "</div>";
+                echo "</div>";
 
-                echo "<div class='short-descr'>";
+                echo "<div class='short-descr-custom'>";
                     echo "<h4> Znanje </h4>";
                     echo "<p>".$row['knowledge']."</p>";
                 echo "</div>";
 
-                echo "<div class='short-descr'>";
+                echo "<div class='short-descr-custom'>";
                     echo "<h4> Veštine </h4>";
                     echo "<p>".$row['skills']."</p>";
                 echo "</div>";
 
             
-                echo "<div class='request-view-buttons'>";
+                echo "<div class='request-view-buttons-custom'>";
                     if($row['activate'])
                     {
+                        echo "<div class='request-view-buttons-custom1col'>";
                         echo "<input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,1)' class='button'>";
-                        echo "<input type='button' id=".$row['userId']." value='Uredi profil' onclick='editProfile(this.id,1)' class='button' style='background-color:orange;'>";
+                        echo "<input type='button' id=".$row['userId']." value='Uredi profil' onclick='editProfile(this.id,1)' class='button' style='background-color:orange; color: #fff;' onmouseover='this.style.backgroundColor=\"rgb(255, 136, 0)\"' onmouseout='this.style.backgroundColor=\"orange\"'>";
+                        echo "</div>";
+                        echo "<div class='request-view-buttons-custom2col'>";
                         echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                        echo "<input type='button' id=".$row['userId']." value='Unapredi' onclick='upgradeToAdmin(this.id)' class='dangerButton' style='background-color:rgb(4, 173, 224); color: #fff;' onmouseover='this.style.backgroundColor=\"rgb(4, 140   , 250)\"' onmouseout='this.style.backgroundColor=\"rgb(4, 173, 224)\"'>";
+                        echo "</div>";
                     }
                     else
-                    {
+                    {   
+                        echo "<div class='request-view-buttons-custom1col'>";
                         echo "<input type='button' id=".$row['userId']." value='Aktiviraj nalog' onclick='activateProfile(this.id)' class='button' >";
                         echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                        echo "</div>";
                     }
                 echo "</div>";
             echo "</div>";
@@ -1370,37 +1379,46 @@
 
         function listAllPanelUserProfiles($row)
         {
-            echo "<div class='searching-profiles-container'>";
+            echo "<div class='searching-profiles-container-custom'>";
+            echo "<div class='userInfoSome'>";
                 echo "  <div class='profile-image'>
                             <img src='./uploads/".$row['profileImagePath']."' alt='User Icon'>
                         </div>";
 
-                echo "<div class='firstLastName'>";
+                    echo "<div class='firstLastName-custom'>";
                     echo "<h2>".$row['firstName']." ".$row['lastName']."</h2>";
                 echo "</div>";
+                echo "</div>";
 
-                echo "<div class='short-descr'>";
-                    echo "<h4> Interesovanja </h4>";
+                echo "<div class='short-descr-custom'>";
+                echo "<h4> Interesovanja </h4>";
                     echo "<p>".$row['interests']."</p>";
                 echo "</div>";
 
-                echo "<div class='short-descr'>";
-                    echo "<h4> Obrazovanje </h4>";
+                echo "<div class='short-descr-custom'>";
+                echo "<h4> Obrazovanje </h4>";
                     echo "<p>".$row['education']."</p>";
                 echo "</div>";
 
             
-                echo "<div class='request-view-buttons'>";
-                    if($row['activate'])
+                echo "<div class='request-view-buttons-custom'>";
+                if($row['activate'])
                     {
-                        echo "<input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,0)' class='button'>";
-                        echo "<input type='button' id=".$row['userId']." value='Uredi profil' onclick='editProfile(this.id,0)' class='button' style='background-color:orange;'>";
+                        echo "<div class='request-view-buttons-custom1col'>";
+                        echo "<input type='button' id=".$row['userId']." value='Vidi profil' onclick='viewProfile(this.id,1)' class='button'>";
+                        echo "<input type='button' id=".$row['userId']." value='Uredi profil' onclick='editProfile(this.id,1)' class='button' style='background-color:orange; color: #fff;' onmouseover='this.style.backgroundColor=\"rgb(255, 136, 0)\"' onmouseout='this.style.backgroundColor=\"orange\"'>";
+                        echo "</div>";
+                        echo "<div class='request-view-buttons-custom2col'>";
                         echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                        echo "<input type='button' id=".$row['userId']." value='Unapredi' onclick='upgradeToAdmin(this.id)' class='dangerButton' style='background-color:rgb(4, 173, 224); color: #fff;' onmouseover='this.style.backgroundColor=\"rgb(4, 140, 250)\"' onmouseout='this.style.backgroundColor=\"rgb(4, 173, 224)\"'>";                    
+                        echo "</div>";
                     }
                     else
                     {
+                        echo "<div class='request-view-buttons-custom1col'>";
                         echo "<input type='button' id=".$row['userId']." value='Aktiviraj nalog' onclick='activateProfile(this.id)' class='button' >";
                         echo "<input type='button' id=".$row['userId']." value='Ukloni nalog' onclick='removeProfile(this.id,".$row['userType'].")' class='dangerButton' >";
+                        echo "</div>";
                     }
                 echo "</div>";
             echo "</div>";
