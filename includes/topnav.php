@@ -1,5 +1,6 @@
 <div class="topnav">
         <?php
+
                 if(isset($_SESSION['uID']) && ($_SESSION['userType']!=2))
                 {
         ?>
@@ -14,7 +15,14 @@
                                         }
                                 ?>
                         </a>
-                        <a href="../chat.php">Prepiske</a>
+                        <a href="chat.php">Prepiske
+                                <?php
+                                        $unreadCount = count($user->selectDataGeneric('messages',array('recieverId','viewedReciever'),array($_SESSION['uID'],0)));
+                                        if ($unreadCount > 0) {
+                                                echo '<div class="notification-circle" id="notificationCount" > ' . $unreadCount . '</div>';
+                                        }
+                                ?>
+                        </a>
         <?php
                 }
                 if(isset($_SESSION['userType']))
@@ -43,7 +51,7 @@
         ?>
         <a href="../index.php" style="float:right"><strong>Razmena vestina i znanja</strong></a>
         <div class="searcharea">
-                <form action="<?php echo ($_SESSION['userType']==2) ? "../controlPanel.php" : "../profileListing.php"; ?>" method='post' class='topNav-search'>
+                <form action="<?php echo (isset($_SESSION['userType']) && $_SESSION['userType']==2) ? "../controlPanel.php" : "../profileListing.php"; ?>" method='post' class='topNav-search'>
                         <div class="search-input">
                                 <input type="text" class="textField" id='searchBox' name='searchUsers' placeholder="Pretrazite korisnika...">
                                 <i class="fas fa-search"></i>

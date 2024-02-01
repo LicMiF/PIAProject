@@ -67,6 +67,20 @@ class User{
         }
     }
 
+    public function checkActivate($username){
+        try{
+            $statement=$this->conn->prepare("SELECT activate FROM users WHERE username=?");
+            $statement->execute([$username]);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+            return $res;
+        }
+        catch(PDOException $e){
+            echo "Error";
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
     public function changePass($password,$uID)
     {
         try{
@@ -83,13 +97,14 @@ class User{
         }
     }
 
-    public function updateInfo($mail,$firstName ,$lastName,$uID)
+    public function updateInfo($mail,$firstName ,$lastName,$skills,$uID)
     {
         try{
 
-            $columns=array("mail","firstName","lastName");
+            $columns=array("mail","firstName","lastName","skills");
             $statement=$this->conn->prepare($this->generateUpdateAndWhereQuery('users',$columns,array('userId')));
-            $statement->execute([$mail,$firstName ,$lastName,$uID]);
+            $statement->execute([$mail,$firstName ,$lastName,$skills,$uID]);
+
             return true;
         }
         catch(PDOException $e)
@@ -211,7 +226,6 @@ class User{
 
 
 
-    /*Inside values */
     public function updateDataGeneric($table,$cols,$vals,$whereCols=NULL,$whereConds=NULL)
     {
         try {
@@ -384,8 +398,6 @@ class User{
                             userSpecific ON users.userId = userSpecific.userId AND users.userType = 0
                         LEFT JOIN
                             mentorSpecific ON users.userId = mentorSpecific.userId AND users.userType = 1;
-
-
             ");
             $statement->execute();
             $res = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -399,7 +411,6 @@ class User{
 
 
     /*Helper functions*/
-
 
     public function generateUpdateAndWhereQuery($tableName,$columns,$whereCols=NULL)
     {
@@ -501,7 +512,6 @@ class User{
     }
 
 /* Messages related */
-
     public function showMyMessages($id,$target){
         try{
             $statement = $this->conn->prepare("SELECT * FROM messages WHERE senderId=? AND recieverId=?");

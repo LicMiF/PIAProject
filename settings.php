@@ -80,23 +80,16 @@
                         if($_SESSION['userType']==0)
                         {
                             $userSpecificData=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
-                            
+                            $education=$_POST['education'];
+                            $interests=$_POST['interests'];
                             if(empty($_POST['education']))
                                 $education=$userSpecificData['education'];
-                            else
-                                $education=$_POST['education'];
 
                             if(empty($_POST['interests']))
-                                $yearExp=$userSpecificData['interests'];
-                            else
-                                $interests=$_POST['interests'];
-
-
-
-                            $education=$_POST['education'];
-                            $interests=$_POST['iterests'];
-                            $allOk=validateSettingsChangeUser($mail,$firstName ,$lastName,$skills,$education,$interests,$_SESSION['uID'],$user);
+                                $interests=$userSpecificData['interests'];
                             
+                            
+                            $allOk=validateSettingsChangeUser($mail,$firstName,$lastName,$skills,$education,$interests,$_SESSION['uID'],$user);             
                         }
                         else
                         {
@@ -112,7 +105,8 @@
                             else
                                 $yearExp=$_POST['yearExp'];
 
-                            $allOk=validateSettingsChangeMentor($mail,$firstName ,$lastName,$skills,$yearExp,$knowledge,$_SESSION['uID'],$user);
+                            $allOk=validateSettingsChangeMentor($mail,$firstName,$lastName,$skills,$yearExp,$knowledge,$_SESSION['uID'],$user);
+
                         }
                         if(!$allOk)
                             $errorstr=$user->displayErrors();
@@ -129,7 +123,7 @@
 
                     if($_SESSION['userType']==0)
                     {
-                        $fields=array('Email'=>'mail','Ime'=>'firstName','Prezime'=>'lastName','Veštine'=>'skills','Obrazovanje'=>'education','Interesovanja'=>'iterests');
+                        $fields=array('Email'=>'mail','Ime'=>'firstName','Prezime'=>'lastName','Veštine'=>'skills','Obrazovanje'=>'education','Interesovanja'=>'interests');
                         $types=array('text','text','text','text','text','text');
                     }
                     else
@@ -167,7 +161,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
     <?php

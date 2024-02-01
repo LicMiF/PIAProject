@@ -22,6 +22,7 @@
     }
 
 
+
     /* Values of radio are by default stored in radio[] array*/
     /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
     function renderFormWithPasswordStrengthCheckAndRadios($fields,$types,$submit,$action,$method,$radios)
@@ -81,6 +82,7 @@
         </div>
         ';
     }
+
 
 
     /* Values of radio are by default stored in radio[] array*/
@@ -153,6 +155,10 @@
         if(empty($username) || empty($password))
         {
             $user->appendError('Molimo vas da popunite oba polja');
+            return false;
+        }
+        else if($user->checkActivate($username)['activate']==='0'){
+            $user->appendError('Vas nalog nije aktiviran');
             return false;
         }
         else if(!($uID=$user->validateUser($username,$password)))
@@ -232,7 +238,9 @@
         $columns=array('username', 'password', 'mail', 'firstName', 'lastName', 'emailHash', 'userType','skills');
         $pass=$user->hashPassword($password);
         $emailHash=$user->hashMail($mail);
-        $values=array($username,$pass,$mail,$firstName,$lastName,$emailHash,$userType,$skills);
+      
+        $values=array(strip_tags($username),$pass,strip_tags($mail),strip_tags($firstName),strip_tags($lastName),$emailHash,$userType,strip_tags($skills));
+
         
         if(!($uID=$user->insertDataGeneric($columns,$values,'users')))
         {
@@ -348,6 +356,13 @@
     function validateSettingsChangeUser($mail,$firstName ,$lastName,$skills,$education,$interests,$uID,&$user)
     {
 
+        $mail=strip_tags($mail);
+        $firstName=strip_tags($firstName);
+        $lastName=strip_tags($lastName);
+        $skills=strip_tags($skills);
+        $education=strip_tags($education);
+        $interests=strip_tags($interests);
+        
         if ($mail !== $user->getUserMail($uID))
         {   
             if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
@@ -375,17 +390,36 @@
         if(!$user->isEmptyErrors())
             return false;
 
-        if(!($uID=$user->updateInfo($mail,$firstName ,$lastName,$uID)))
+        $columns=array('mail','firstName','lastName','skills');
+        $values=array($mail,$firstName ,$lastName,$skills);
+        if(!($user->updateDataGeneric('users',$columns,$values,array('userId'),array($uID))))
         {
             $user->appendError('Greska na serveru, pokusajte ponovo :(');
             return false;
         }
+
+        $cols=array("education","interests");
+        $vals=array($education,$interests);
+        if(!($user->updateDataGeneric('userSpecific',$cols,$vals,array('userId'),array($uID))))
+        {
+            $user->appendError('Greska na serveru, pokusajte ponovo :(');
+            return false;
+        }
+
         return true;
 
     }
 
     function validateSettingsChangeMentor($mail,$firstName ,$lastName,$skills,$yearExp,$knowledge,$uID,&$user)
     {
+
+        $mail=strip_tags($mail);
+        $firstName=strip_tags($firstName);
+        $lastName=strip_tags($lastName);
+        $skills=strip_tags($skills);
+        $yearExp=strip_tags($yearExp);
+        $knowledge=strip_tags($knowledge);
+        
         if ($mail !== $user->getUserMail($uID))
         {   
             if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
@@ -704,13 +738,16 @@
 
         $userData=$user->getUserData($profileId);
         $userSpecific=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
+      
+        $skillsArray = explode(',', $userData['skills']);
+        $skills = implode(' | ', $skillsArray);
 
         echo "  <div class='profile-header'>
                     <div class='profile-image'>
                         <img src='./uploads/".$userData['profileImagePath']."' alt='Profile Picture'>
                     </div>
                     <div class='profile-username'>".$userData['firstName']." ".$userData['lastName']."</div>
-                    <div class='profile-bio'>Web Developer | Nature Lover | Coffee Enthusiast</div>
+                    <div class='profile-bio'>".$skills."</div>
                 </div>";
 
         echo "  <div class='profile-section'>
@@ -738,7 +775,6 @@
                     <h2>Interesovanja</h2>
                     <div class='profile-details'>
                         <div class='detail-item'>
-                            <div class='detail-item-header'> Interesovanja</div>
                             <div>".$userSpecific['interests']."</div>
                         </div>
                     </div>
@@ -747,7 +783,6 @@
                     <h2>Obrazovanje</h2>
                     <div class='profile-details'>
                         <div class='detail-item'>
-                            <div class='detail-item-header'>Obrazovanje</div>
                             <div>".$userSpecific['education']."</div>
                         </div>
                     </div>
@@ -761,12 +796,16 @@
         $userData=$user->getUserData($profileId);
         $mentorSpecific=$user->selectDataGeneric('mentorSpecific',array('userId'),array($profileId))[0];
 
+        $skillsArray = explode(',', $userData['skills']);
+        $skills = implode(' | ', $skillsArray);
+      
         echo "  <div class='profile-header'>
                     <div class='profile-image'>
                         <img src='./uploads/".$userData['profileImagePath']."' alt='Profile Picture'>
                     </div>
                     <div class='profile-username'>".$userData['firstName']." ".$userData['lastName']."</div>
-                    <div class='profile-bio'>Web Developer | Nature Lover | Coffee Enthusiast</div>
+                    <div class='profile-bio'>".$skills."</div>
+
                 </div>";
 
         echo "  <div class='profile-section'>
@@ -824,26 +863,37 @@
 
     /*Messages displaying */
 
-    function displayDmUsers($usersData,&$user)
+
+    function displayDmUsers($me, $usersData, &$user)
     {
         if (!empty($usersData)) {
+            $unread = [];
+            for ($i = 0; $i < count($usersData); $i++) {
+                $var = $user->countUnreadMessages($me['userId'], $usersData[$i]['userId']);
+                $unread[] = $var;
+            }
+
+            // Sort $usersData based on $unread
+            array_multisort($unread, SORT_DESC, $usersData);
+            $i=0;
             echo '<div class="user-list">';
-            usort($usersData, function ($a, $b) {
-                return $b['unreadCount'] - $a['unreadCount'];
-            });
             foreach ($usersData as $userData) {
+                $notificationIndicator = ($unread[$i] !== '0') ? '<span class="notification-indicator">' . $unread[$i] . '</span>' : ' ';
                 echo "<div class='user-container'>";
                 echo "  <div class='user-image'>
-                            <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                            <img src='./uploads/" . $userData['profileImagePath'] . "' alt='User Icon'>
                         </div>";
-                echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . $notificationIndicator . " " . $userData['firstName']." ".$userData['lastName'] . '</a><br>';
+                echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . " " . $userData['firstName'] . " " . $userData['lastName'] . "  " . $notificationIndicator . '</a><br>';
                 echo "</div>";
+                $i++;
             }
             echo '</div>';
         } else {
             echo "Nemate nijednu uspostavljenu razmenu..";
         }
     }
+
+
 
     function displayUserDm($targetUserId, &$user)
     {
@@ -1151,7 +1201,6 @@
             $user->insertDataGeneric($columns,$values,'notifications');
         }
 
-
         function compareNotifTimestamps($a,$b)
         {
             $time1=strtotime($a['timestamp']);
@@ -1173,6 +1222,15 @@
         {
             $user=new User();
             if($user->updateDataGeneric('notifications',array('viewed'),array(1),array('recieverId'),array($_SESSION['uID'])))
+                return true;
+            return false;
+        }
+
+
+        function markMessagesAsRead()
+        {
+            $user=new User();
+            if($user->updateDataGeneric('messages',array('viewedReciever'),array(1),array('recieverId'),array($_SESSION['uID'])))
                 return true;
             return false;
         }
@@ -1212,6 +1270,7 @@
                             else
                             {
                                 echo "<input type='button' id=".$row['userId']." value='Prihvati' onclick='approve(this.id)' class='button' >";
+
                                 echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='dangerButton1' >";
                             }
                         }
@@ -1291,9 +1350,6 @@
                     echo "<h4> Veštine </h4>";
                     echo "<p>".$row['skills']."</p>";
                 echo "</div>";
-
-                // if($row['activate'])
-                //     echo '<a class="comment-delete-link" " href="" id="'. $row['userId'] .'" onclick="removeProfile(this.id,'.$row['userType'].')">Ukloni profil</a>';
 
             
                 echo "<div class='request-view-buttons'>";
@@ -1381,6 +1437,7 @@
                 }
                 echo "</div>";
         }
+
 
         function countClasses()
         {

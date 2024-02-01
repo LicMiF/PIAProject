@@ -5,7 +5,6 @@
 
     sendRequestApprovedNotification($_POST['id'],$_SESSION['uID']);
     
-
     if($requests->approveRequest($_POST['id'],$_SESSION['uID']))
         echo "Success!";
     else 

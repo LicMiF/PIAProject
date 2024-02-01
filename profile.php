@@ -93,11 +93,11 @@
     
         <div class="rightcolumn">
             <div class="card">
-                <h2>Pocetna</h2>
+                <h2>Prozor za izmenu podataka.</h2>
                 <?php
                     if(isset($_SESSION['uID']))
                     {
-                        echo '<h2> Hello '.$data['firstName'].'</h2>';
+                        echo '<h2>Korisnik: '.$data['firstName'].'</h2>';
                     ?>
                     <a href="./changePass.php">Promeni sifru</a> </br>
                     <a href="./settings.php">Podesavanja</a>
@@ -121,6 +121,7 @@
         let userRating = <?php echo $myRating?>;
     </script>
     <script src="./core/rating.js" defer></script>
+
     <?php
         include_once "./includes/footer.html";
     ?>

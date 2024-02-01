@@ -77,21 +77,16 @@
                         if($userType==0)
                         {
                             $userSpecificData=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
-                            
-                            if(empty($_POST['education']))
-                                $education=$userSpecificData['education'];
-                            else
-                                $education=$_POST['education'];
-
-                            if(empty($_POST['interests']))
-                                $yearExp=$userSpecificData['interests'];
-                            else
-                                $interests=$_POST['interests'];
-
-
 
                             $education=$_POST['education'];
-                            $interests=$_POST['iterests'];
+                            $interests=$_POST['interests'];                            
+                            if(empty($_POST['education']))
+                                $education=$userSpecificData['education'];
+
+                            if(empty($_POST['interests']))
+                                $interests=$userSpecificData['interests'];
+ 
+                                
                             $allOk=validateSettingsChangeUser($mail,$firstName ,$lastName,$skills,$education,$interests,$profileId,$user);
                             
                         }
@@ -126,7 +121,8 @@
 
                     if($userType==0)
                     {
-                        $fields=array('Email'=>'mail','Ime'=>'firstName','Prezime'=>'lastName','Veštine'=>'skills','Obrazovanje'=>'education','Interesovanja'=>'iterests');
+                        $fields=array('Email'=>'mail','Ime'=>'firstName','Prezime'=>'lastName','Veštine'=>'skills','Obrazovanje'=>'education','Interesovanja'=>'interests');
+
                         $types=array('text','text','text','text','text','text');
                     }
                     else

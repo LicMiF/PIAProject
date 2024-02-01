@@ -18,7 +18,7 @@
     font-size: 50px;
   }
   
-  /* Style the top navigation bar */
+ 
   .topnav {
     top: 0;
     position:sticky;
@@ -27,7 +27,7 @@
     z-index: 100;
   }
   
-  /* Style the topnav links */
+  
   .topnav a {
     float: left;
     display: flex; 
@@ -38,13 +38,13 @@
     position: relative;
   }
   
-  /* Change color on hover */
+  
   .topnav a:hover {
     background-color: #1d574f;
     color: white;
   }
 
-  /* Style the circle with the number */
+
   .notification-circle {
     background-color: #1d574f;
     color: #ffffff;
@@ -92,14 +92,12 @@
   
   
   	
-  /* Create two unequal columns that floats next to each other */
-  /* Left column */
   .leftcolumn {   
     float: left;
     width: 63%;
   }
   
-  /* Right column */
+  
   .rightcolumn {
     float: left;
     width: 37%;
@@ -111,7 +109,7 @@
     width: 24%;
     padding-left: 1em;
   }
-  
+
 
   .stat-wrapper
   {
@@ -165,21 +163,21 @@
     padding: 20px;
   }
   
-  /* Add a card effect for articles */
+  
   .card {
     background-color: white;
     padding: 20px;
     margin-top: 20px;
   }
   
-  /* Clear floats after the columns */
+  
   .row::after {
     content: "";
     display: table;
     clear: both;
   }
   
-  /* Footer */
+  
   .footer {
     padding: 20px;
     text-align: center;
@@ -187,7 +185,6 @@
     margin-top: 20px;
   }
   
-  /* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
   @media screen and (max-width: 800px) {
     .leftcolumn, .rightcolumn {   
       width: 100%;
@@ -195,13 +192,14 @@
     }
   }
   
-  /* Responsive layout - when the screen is less than 400px wide, make the navigation links stack on top of each other instead of next to each other */
+  
   @media screen and (max-width: 400px) {
     .topnav a {
       float: none;
       width: 100%;
     }
   }
+
 
 
 
@@ -329,7 +327,9 @@
 }
 
 
+
 /*Registration form specific styling*/
+
 .choice {
   width: 100%;
   margin: 10px 0px; 
@@ -350,12 +350,12 @@
 
 #studentBtn {
   color: white;
-  background-color: #04473e; /* Green */
+  background-color: #04473e; 
 }
 
 #mentorBtn {
   color: #04473e;
-  background-color: white; /* Blue */
+  background-color: white; 
 }
 
 .form-section {
@@ -482,7 +482,6 @@
 
 
 
-
 /*Profile related style*/
 
 .profile-container {
@@ -554,6 +553,7 @@
 
 
 
+
 /*Chat related styling*/
 
 .chat-container {   
@@ -577,6 +577,12 @@
   padding-top: 5px;
   padding-right: 7px;
   border-radius: 5px;
+}
+
+.notification-indicator {
+  color: red;  /* Choose your preferred color */
+  font-weight: bold;
+  margin-right: 5px;  /* Adjust as needed */
 }
 
 .sent {
@@ -743,9 +749,8 @@
 }
 
 
-/*Image settings part*/
 
-/* CSS for styling the file input */
+/*Image settings part*/
 .file-label {
   display: inline-block;
   position: relative;
@@ -770,6 +775,7 @@
   opacity: 0; 
   cursor: pointer;
 }
+
 
 /* Style for the button */
 input[name='uploadImg'] {
@@ -960,7 +966,6 @@ input[name='uploadImg']:hover {
 {
   display: block;
 }
-
 
 /*Time selecting related style*/
 
@@ -1225,8 +1230,6 @@ input[name='uploadImg']:hover {
 {
   color: white;
 }
-
-
 
 
 .class-stat-container{

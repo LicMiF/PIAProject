@@ -16,6 +16,7 @@
 
 
 
+
         $comments=$user->selectDataGeneric('comments',array('recieverId'),array($_POST['id']));
 
         foreach($comments as $comment)
@@ -53,6 +54,7 @@
             echo "Success!";
         else
             echo "Failed!";
+
 
         if($user->deleteDataGeneric('likes',array('senderId'),array($_POST['id'])))
             echo "Success!";
