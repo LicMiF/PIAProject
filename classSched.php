@@ -27,10 +27,14 @@
             else
             {
                 sendClassScheduledNotifications($_SESSION['uID'],$classId);
-                header("Location: ".$_SERVER['PHP_SELF']);
+                echo "<script> window.location.href = 'classSched.php';</script>";
+                exit(); 
             }
         }
+        
         $classSchedData=$user->selectDataGeneric('classes',array('creatorId'),array($_SESSION['uID']));
+        
+        $classSchedData = array_filter($classSchedData, 'filterClassesByDate');
 
         usort($classSchedData,'compareClassesTimestamps');
     ?>

@@ -1217,6 +1217,14 @@
             return ($time1 - $time2);
         }
 
+        function filterClassesByDate($class)
+        {
+            $currentDateTime = new DateTime(); 
+            $classDateTime = new DateTime($class['classDate']);
+
+            return $classDateTime >= $currentDateTime;
+        }
+
         function markNotificationsAsRead()
         {
             $user=new User();
