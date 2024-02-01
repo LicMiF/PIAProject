@@ -28,7 +28,7 @@
                         else if($_SESSION['userType']==2)
                         {
                                 echo'<a href="../controlPanel.php">Kontrolni panel</a>';
-                                echo'<a href="../statistics.php">Analize</a>';
+                                echo'<a href="../statistics.php">Statistika</a>';
                         }
                 }
                 else

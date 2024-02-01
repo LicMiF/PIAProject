@@ -18,7 +18,7 @@
         <div class="stat-wrapper">
 
                 <div class="stat-column">
-                    <h2>Top 10</h2>
+                    <h2>Najpopularniji kursevi</h2>
                     <h4>Top 10 najpopularnijih kurseva po broju časova</h4>
                     <?php
                         arsort($classCount);
@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="stat-column">
-                    <h2>Top 10</h2>
+                    <h2>Najmanje popularni kursevi</h2>
                     <h4>Top 10 kurseva sa najmanjim brojem časova</h4>
                     <?php
                         asort($classCount);
@@ -50,7 +50,7 @@
         <div class="stat-wrapper">
 
                 <div class="stat-column">
-                    <h2>Top 10</h2>
+                    <h2>Najbolje ocenjeni mentori</h2>
                     <h4>Top 10 mentora sa najboljom prosečnom ocenom i broj glasova koji im je dodeljen</h4>
                     <?php
                         displayStatsRatings();
@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="stat-column">
-                    <h2>Top 10</h2>
+                    <h2>Najviše ocenjivani mentori</h2>
                     <h4>Top 10 mentora sa najvećim brojem dodeljenih ocena</h4>
                     <?php
                         displayStatsRatingCounts();
@@ -66,7 +66,7 @@
                 </div>
 
                 <div class="stat-column">
-                    <h2>Top 10</h2>
+                    <h2>Najviše komentarisani mentori</h2>
                     <h4>Top 10 mentora sa najvećim brojem komentara na profilu</h4>
                     <?php
                         displayStatsCommentCounts();

@@ -671,15 +671,16 @@
             $dislikeCounts='';
             if($dislikedCommentData)
                 $dislikeCounts=count($dislikedCommentData);
-
-            echo "  <div class='comment-footer'>";
-            echo "      <div class='like-btns'>
-                            <i class='fas fa-thumbs-up ".$likeBtnClass."' id=".$comment['commentId']." onclick='handleLike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$likeCounts</div>
-                            <i class='fas fa-thumbs-down ".$dislikeBtnClass."' id=".$comment['commentId']." onclick='handleDislike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$dislikeCounts</div>
+            if(isset($_SESSION['uID']))
+            {
+                echo "  <div class='comment-footer'>";
+                echo "      <div class='like-btns'>
+                                <i class='fas fa-thumbs-up ".$likeBtnClass."' id=".$comment['commentId']." onclick='handleLike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$likeCounts</div>
+                                <i class='fas fa-thumbs-down ".$dislikeBtnClass."' id=".$comment['commentId']." onclick='handleDislike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$dislikeCounts</div>
+                            </div>";
+                echo "      <span>Posted on: ".$formattedDate."</span>
                         </div>";
-            echo "      <span>Posted on: ".$formattedDate."</span>
-                    </div>";
-            
+            }
             echo ' </div>';
         }
     }
@@ -1084,6 +1085,72 @@
             $user->insertDataGeneric($columns,$values,'notifications');
 
         }
+
+
+
+        function sendCommentPostedNotification($recieverId,$posterId)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." je upravo komentarisao vaš profil.";
+            
+            $notifBody="Obaveštavamo vas da imate nove komentare na profilu.";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
+
+        function sendRequestRecievedNotification($recieverId,$posterId)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." je upravo poslao zahtev za razmenu veština sa vama.";
+            
+            $notifBody="Obaveštavamo vas da imate nove zahteve na profilu.";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
+
+        function sendRequestApprovedNotification($recieverId,$posterId)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." je upravo odobrio zahtev za razmenu veština sa vama.";
+            
+            $notifBody="Obaveštavamo vas da ste uspostavili razmenu! Čestitamo!";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
+
+        function sendNewRatingNotification($recieverId,$posterId,$newRating)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." vas je upravo ocenio.";
+            
+            $notifBody="Obaveštavamo vas da ste dobili ocenu $newRating, korisnici imaju pravo odabrati bilo koju ocenu.";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
 
         function compareNotifTimestamps($a,$b)
         {

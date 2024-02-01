@@ -35,9 +35,10 @@
                                 $errorstr=$user->displayErrors();
                             else
                             {  
+                                sendCommentPostedNotification($profileId,$_SESSION['uID']);
                                 $_SESSION['currentUserProfileId']=$profileId;                          
-                                // echo "<script> window.location.href = 'profile.php';</script>";
-                                // exit(); 
+                                echo "<script> window.location.href = 'profile.php';</script>";
+                                exit(); 
                             }
                         }
 
