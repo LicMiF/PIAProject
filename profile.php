@@ -93,10 +93,10 @@
     
         <div class="rightcolumn">
             <div class="card">
-                <h2>Prozor za izmenu podataka.</h2>
                 <?php
                     if(isset($_SESSION['uID']))
                     {
+                        echo "<h2>Prozor za izmenu podataka:</h2>";
                         echo '<h2>Korisnik: '.$data['firstName'].'</h2>';
                     ?>
                     <a href="./changePass.php">Promeni sifru</a> </br>
@@ -105,6 +105,7 @@
                     }
                 else{
                 ?>
+                <h2>Za više opcija:</h2>
                 <form action="./login.php" method="get">
                     <input type="submit" value="Prijavi se" class="button">
                 </form>

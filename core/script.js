@@ -232,6 +232,33 @@ function handleDislike(commentId,senderId) {
 });
 }
 
+
+async function handleReadMessages(Id) {
+    try {
+        const formData = new FormData();
+        formData.append('Id', Id);
+        const response = await fetch('markAsReadMessages.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        // Do not try this at home, this is only allowed one day before presenting the site :(
+        const data = await response.text();
+
+        var url = './chat.php?userId=' + Id;
+        window.location.href = url;
+
+
+    } catch (error) {
+        console.error('Error during POST request:', error);
+    }
+}
+
+
+
 function activateProfile(id) {
     const formData = new FormData();
     formData.append('id', id);
@@ -259,6 +286,24 @@ function updateViewedNotifications()
         var notificationCircle = document.getElementById('notificationCount');
         if (notificationCircle) {
             notificationCircle.style.display = 'none';
+        }
+}
+
+
+function updateViewedNotificationsMessages(count)
+{
+        var notificationCircle = document.getElementById('notificationCount1');
+        if(count>0)
+        {
+            if (notificationCircle) {
+                notificationCircle.innerHTML= count;
+            }
+        }
+        else
+        {
+            if (notificationCircle) {
+                notificationCircle.style.display = 'none';
+            }
         }
 }
 

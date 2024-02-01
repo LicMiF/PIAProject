@@ -873,17 +873,16 @@
                 $unread[] = $var;
             }
 
-            // Sort $usersData based on $unread
             array_multisort($unread, SORT_DESC, $usersData);
             $i=0;
             echo '<div class="user-list">';
             foreach ($usersData as $userData) {
-                $notificationIndicator = ($unread[$i] !== '0') ? '<span class="notification-indicator">' . $unread[$i] . '</span>' : ' ';
+                $notificationIndicator = ($unread[$i] != '0') ?  '<div class="notification-indicator"> ' . $unread[$i] . '</div>' : ' ';
                 echo "<div class='user-container'>";
                 echo "  <div class='user-image'>
                             <img src='./uploads/" . $userData['profileImagePath'] . "' alt='User Icon'>
                         </div>";
-                echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . " " . $userData['firstName'] . " " . $userData['lastName'] . "  " . $notificationIndicator . '</a><br>';
+                echo '<a class="user-link" href="" id=' . $userData['userId'] . ' onclick=handleReadMessages(this.id)>' . " " . $userData['firstName'] . " " . $userData['lastName'].''.$notificationIndicator.'</a><br>';
                 echo "</div>";
                 $i++;
             }

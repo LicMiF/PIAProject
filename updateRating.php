@@ -1,10 +1,6 @@
 <?php
-// Assuming you have a database connection established
-// Connect to your database here
     require_once './core/utilities.php';
 
-
-    // Fetch JSON data from the request
     $data = json_decode(file_get_contents('php://input'), true);
 
 if ($data && isset($data['ratedId'], $data['criticId'],$data['rating'])) {

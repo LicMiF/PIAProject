@@ -38,6 +38,7 @@ $usersData = $user->showOtherUsersTest($_SESSION['uID'],$_SESSION['userType']);
 if (!is_array($usersData)) {
     $usersData = array();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -48,6 +49,13 @@ if (!is_array($usersData)) {
     <title>Chat</title>
 </head>
 <body>
+    <?php
+    if(isset($_GET['userId']))
+    {
+        $unreadCount = count($user->selectDataGeneric('messages',array('recieverId','viewedReciever'),array($_SESSION['uID'],0)));
+        echo "<script>updateViewedNotificationsMessages($unreadCount);</script>";
+    }
+    ?>
 <div class='row'>
     <div class="users-container">
         <div class="card">
@@ -118,11 +126,6 @@ if (!is_array($usersData)) {
         }
     });
 </script>
-
-<?php
-        //markMessagesAsRead();
-
-?>
 
 </body>
 </html>

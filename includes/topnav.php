@@ -19,7 +19,7 @@
                                 <?php
                                         $unreadCount = count($user->selectDataGeneric('messages',array('recieverId','viewedReciever'),array($_SESSION['uID'],0)));
                                         if ($unreadCount > 0) {
-                                                echo '<div class="notification-circle" id="notificationCount" > ' . $unreadCount . '</div>';
+                                                echo '<div class="notification-circle" id="notificationCount1" > ' . $unreadCount . '</div>';
                                         }
                                 ?>
                         </a>

@@ -9,13 +9,14 @@
   }
   
   .header {
-    padding: 30px;
     text-align: center;
     background: white;
+    padding: 1em;
   }
   
   .header h1 {
     font-size: 50px;
+    color: white;
   }
   
  
@@ -49,7 +50,7 @@
     background-color: #1d574f;
     color: #ffffff;
     border-radius: 50%;
-    padding: 0.2em 0.8em;
+    padding: 0.2em 0.65em;
     font-size: 0.75em;
     margin-left: 0.6em; 
     cursor: pointer;
@@ -579,10 +580,22 @@
   border-radius: 5px;
 }
 
-.notification-indicator {
-  color: red;  /* Choose your preferred color */
+/* .notification-indicator {
+  color: red;  
   font-weight: bold;
-  margin-right: 5px;  /* Adjust as needed */
+  float: right;
+  display: inline;
+} */
+
+.notification-indicator {
+  background-color: #1d574f;
+  color: #ffffff;
+  border-radius: 50%;
+  padding: 0.2em 0.75em;
+  font-size: 0.75em;
+  cursor: pointer;
+  display: inline;
+  float: right;
 }
 
 .sent {
@@ -724,7 +737,7 @@
 }
 
 .user-link {
-  width: 82%;
+  width: 86%;
   color: white;
   text-decoration: none;
   display: inline;
@@ -1198,11 +1211,6 @@ input[name='uploadImg']:hover {
   display: block;
 }
 
-.additional-info h2
-{
-  text-align: center;
-  color: #04473e;
-}
 
 .additional-info .firstLastName h2
 {

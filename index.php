@@ -32,7 +32,7 @@
     
         <div class="rightcolumn">
             <div class="card">
-                <h2>Pocetna</h2>
+                <h2>Početna</h2>
                 <?php
                     if(isset($_SESSION['uID']))
                     {
@@ -47,7 +47,7 @@
                 <form action="./login.php" method="get">
                     <input type="submit" value="Prijavi se" class="button">
                 </form>
-                <p>Nemas kreiran nalog? <a href="./register.php">Registruj se</a></p>
+                <p>Nemaš kreiran nalog? <a href="./register.php">Registruj se</a></p>
                 <?php } ?>
             </div>
         </div>
