@@ -20,7 +20,10 @@ if ($data && isset($data['ratedId'], $data['criticId'],$data['rating'])) {
         $success = $user->insertDataSpecific(array('ratedId','criticId','rating'),array($ratedId,$criticId,$newRating),'ratings');
 
     if ($success) {
+    {
+        sendNewRatingNotification($ratedId,$criticId,$newRating);
         echo json_encode(['success' => true]);
+    }
     } else {
         echo json_encode(['success' => false]);
     }

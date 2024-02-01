@@ -2,7 +2,6 @@
     require_once "userDB.php";
     require_once "containerClass.php";
     require_once 'requestsDB.php';
-    require_once 'userMentorDB.php';
 
     function renderForm($fields,$types,$submit,$action,$method)
     {
@@ -23,7 +22,9 @@
     }
 
 
-    
+
+    /* Values of radio are by default stored in radio[] array*/
+    /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
     function renderFormWithPasswordStrengthCheckAndRadios($fields,$types,$submit,$action,$method,$radios)
     {
 
@@ -83,7 +84,9 @@
     }
 
 
-    
+
+    /* Values of radio are by default stored in radio[] array*/
+    /*In order to work properly, name of the field that will be checeked should be checkPass*/ 
     function renderFormRegistrationSpecific($fields,$types,$studentSpecific,$mentorSpecific,$submit,$action,$method)
     {
 
@@ -163,6 +166,12 @@
             $user->appendError('Neispravna kombinacija Korisničko ime/ Šifra');
             return false;
         }
+
+        if(!($user->selectDataGeneric('users',array('userId'),array($uID)))[0]['activate'])
+        {
+            $user->appendError('Ispravni kredencijali ali administrator još uvek nije aktivirao nalog.');
+            return false;
+        }
         return $uID;
     }
 
@@ -229,7 +238,9 @@
         $columns=array('username', 'password', 'mail', 'firstName', 'lastName', 'emailHash', 'userType','skills');
         $pass=$user->hashPassword($password);
         $emailHash=$user->hashMail($mail);
+      
         $values=array(strip_tags($username),$pass,strip_tags($mail),strip_tags($firstName),strip_tags($lastName),$emailHash,$userType,strip_tags($skills));
+
         
         if(!($uID=$user->insertDataGeneric($columns,$values,'users')))
         {
@@ -345,7 +356,6 @@
     function validateSettingsChangeUser($mail,$firstName ,$lastName,$skills,$education,$interests,$uID,&$user)
     {
 
-        
         $mail=strip_tags($mail);
         $firstName=strip_tags($firstName);
         $lastName=strip_tags($lastName);
@@ -353,7 +363,6 @@
         $education=strip_tags($education);
         $interests=strip_tags($interests);
         
-
         if ($mail !== $user->getUserMail($uID))
         {   
             if (!filter_var($mail,FILTER_VALIDATE_EMAIL))
@@ -380,8 +389,6 @@
 
         if(!$user->isEmptyErrors())
             return false;
-        $cols=array("education","interests");
-        $vals=array($education,$interests);
 
         $columns=array('mail','firstName','lastName','skills');
         $values=array($mail,$firstName ,$lastName,$skills);
@@ -405,7 +412,7 @@
 
     function validateSettingsChangeMentor($mail,$firstName ,$lastName,$skills,$yearExp,$knowledge,$uID,&$user)
     {
-        
+
         $mail=strip_tags($mail);
         $firstName=strip_tags($firstName);
         $lastName=strip_tags($lastName);
@@ -673,14 +680,41 @@
             $dateTime = new DateTime($comment['timestamp']);
             $formattedDate = $dateTime->format('Y-m-d H:i:s');
 
-            echo "  <div class='comment-footer'>
-                        <div class='like-btns'>
-                            <i class='fas fa-thumbs-up like-btn'></i>
-                            <i class='fas fa-thumbs-down dislike-btn'></i>
-                        </div>
-                        <span>Posted on: ".$formattedDate."</span>
-                    </div>";
-            
+            /* Like and dislike logic */
+            $likeMetaData=$user->selectDataGeneric('likes',array('commentId','senderId'),array($comment['commentId'],$_SESSION['uID']));
+            $likeBtnClass='like-btn';
+            $dislikeBtnClass='dislike-btn';
+
+            if($likeMetaData)
+            {
+                if($likeMetaData[0]['liked'])
+                    $likeBtnClass.=" active";
+                else if($likeMetaData[0]['disliked'])
+                    $dislikeBtnClass.=" active";
+            }
+
+            $likedCommentData=$user->selectDataGeneric('likes',array('commentId','liked'),array($comment['commentId'],1));;
+            $dislikedCommentData=$user->selectDataGeneric('likes',array('commentId','disliked'),array($comment['commentId'],1));
+
+
+            $likeCounts='';
+            if($likedCommentData)
+                $likeCounts=count($likedCommentData);
+
+
+            $dislikeCounts='';
+            if($dislikedCommentData)
+                $dislikeCounts=count($dislikedCommentData);
+            if(isset($_SESSION['uID']))
+            {
+                echo "  <div class='comment-footer'>";
+                echo "      <div class='like-btns'>
+                                <i class='fas fa-thumbs-up ".$likeBtnClass."' id=".$comment['commentId']." onclick='handleLike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$likeCounts</div>
+                                <i class='fas fa-thumbs-down ".$dislikeBtnClass."' id=".$comment['commentId']." onclick='handleDislike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$dislikeCounts</div>
+                            </div>";
+                echo "      <span>Posted on: ".$formattedDate."</span>
+                        </div>";
+            }
             echo ' </div>';
         }
     }
@@ -704,8 +738,10 @@
 
         $userData=$user->getUserData($profileId);
         $userSpecific=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
+      
         $skillsArray = explode(',', $userData['skills']);
         $skills = implode(' | ', $skillsArray);
+
         echo "  <div class='profile-header'>
                     <div class='profile-image'>
                         <img src='./uploads/".$userData['profileImagePath']."' alt='Profile Picture'>
@@ -739,7 +775,6 @@
                     <h2>Interesovanja</h2>
                     <div class='profile-details'>
                         <div class='detail-item'>
-                            <div class='detail-item-header'></div>
                             <div>".$userSpecific['interests']."</div>
                         </div>
                     </div>
@@ -748,7 +783,6 @@
                     <h2>Obrazovanje</h2>
                     <div class='profile-details'>
                         <div class='detail-item'>
-                            <div class='detail-item-header'></div>
                             <div>".$userSpecific['education']."</div>
                         </div>
                     </div>
@@ -761,14 +795,17 @@
 
         $userData=$user->getUserData($profileId);
         $mentorSpecific=$user->selectDataGeneric('mentorSpecific',array('userId'),array($profileId))[0];
+
         $skillsArray = explode(',', $userData['skills']);
         $skills = implode(' | ', $skillsArray);
+      
         echo "  <div class='profile-header'>
                     <div class='profile-image'>
                         <img src='./uploads/".$userData['profileImagePath']."' alt='Profile Picture'>
                     </div>
                     <div class='profile-username'>".$userData['firstName']." ".$userData['lastName']."</div>
                     <div class='profile-bio'>".$skills."</div>
+
                 </div>";
 
         echo "  <div class='profile-section'>
@@ -826,34 +863,36 @@
 
     /*Messages displaying */
 
-    function displayDmUsers($me, $usersData, &$user)
-{
-    if (!empty($usersData)) {
-        $unread = [];
-        for ($i = 0; $i < count($usersData); $i++) {
-            $var = $user->countUnreadMessages($me['userId'], $usersData[$i]['userId']);
-            $unread[] = $var;
-        }
 
-        // Sort $usersData based on $unread
-        array_multisort($unread, SORT_DESC, $usersData);
-        $i=0;
-        echo '<div class="user-list">';
-        foreach ($usersData as $userData) {
-            $notificationIndicator = ($unread[$i] !== '0') ? '<span class="notification-indicator">' . $unread[$i] . '</span>' : ' ';
-            echo "<div class='user-container'>";
-            echo "  <div class='user-image'>
-                        <img src='./uploads/" . $userData['profileImagePath'] . "' alt='User Icon'>
-                    </div>";
-            echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . " " . $userData['firstName'] . " " . $userData['lastName'] . "  " . $notificationIndicator . '</a><br>';
-            echo "</div>";
-            $i++;
+    function displayDmUsers($me, $usersData, &$user)
+    {
+        if (!empty($usersData)) {
+            $unread = [];
+            for ($i = 0; $i < count($usersData); $i++) {
+                $var = $user->countUnreadMessages($me['userId'], $usersData[$i]['userId']);
+                $unread[] = $var;
+            }
+
+            // Sort $usersData based on $unread
+            array_multisort($unread, SORT_DESC, $usersData);
+            $i=0;
+            echo '<div class="user-list">';
+            foreach ($usersData as $userData) {
+                $notificationIndicator = ($unread[$i] !== '0') ? '<span class="notification-indicator">' . $unread[$i] . '</span>' : ' ';
+                echo "<div class='user-container'>";
+                echo "  <div class='user-image'>
+                            <img src='./uploads/" . $userData['profileImagePath'] . "' alt='User Icon'>
+                        </div>";
+                echo '<a class="user-link" href="?userId=' . $userData['userId'] . '">' . " " . $userData['firstName'] . " " . $userData['lastName'] . "  " . $notificationIndicator . '</a><br>';
+                echo "</div>";
+                $i++;
+            }
+            echo '</div>';
+        } else {
+            echo "Nemate nijednu uspostavljenu razmenu..";
         }
-        echo '</div>';
-    } else {
-        echo "Nemate nijednu uspostavljenu razmenu..";
     }
-}
+
 
 
     function displayUserDm($targetUserId, &$user)
@@ -878,12 +917,11 @@
 
         if (!empty($allMessages)) {
             $firstIter=true;
-            $lastClass='null';
             foreach ($allMessages as $message) {
                 $messageBody = $message['body'];
                 $messageDate = $message['timestamp'];
                 $messageClass = ($message['senderId'] == $_SESSION['uID']) ? 'sent' : 'received';
-                
+
                 if ($messageClass=='received' && (($lastClass!='received') || $firstIter)){
                     echo "<div class='message-row'>";
                     echo "  <div class='message-image'>
@@ -1098,6 +1136,71 @@
 
         }
 
+
+
+        function sendCommentPostedNotification($recieverId,$posterId)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." je upravo komentarisao vaš profil.";
+            
+            $notifBody="Obaveštavamo vas da imate nove komentare na profilu.";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
+
+        function sendRequestRecievedNotification($recieverId,$posterId)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." je upravo poslao zahtev za razmenu veština sa vama.";
+            
+            $notifBody="Obaveštavamo vas da imate nove zahteve na profilu.";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
+
+        function sendRequestApprovedNotification($recieverId,$posterId)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." je upravo odobrio zahtev za razmenu veština sa vama.";
+            
+            $notifBody="Obaveštavamo vas da ste uspostavili razmenu! Čestitamo!";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
+
+        function sendNewRatingNotification($recieverId,$posterId,$newRating)
+        {
+            $user= new User();
+
+            $userInfo=$user->selectDataGeneric('users',array('userId'),array($posterId))[0];
+
+            $notifHeader="Korisnik ".$userInfo['firstName']." ".$userInfo['lastName']." "." vas je upravo ocenio.";
+            
+            $notifBody="Obaveštavamo vas da ste dobili ocenu $newRating, korisnici imaju pravo odabrati bilo koju ocenu.";
+
+            $columns=array('recieverId','notificationHeader','notificationBody');
+            $values=array($recieverId,$notifHeader,$notifBody);
+            $user->insertDataGeneric($columns,$values,'notifications');
+        }
+
         function compareNotifTimestamps($a,$b)
         {
             $time1=strtotime($a['timestamp']);
@@ -1122,6 +1225,7 @@
                 return true;
             return false;
         }
+
 
         function markMessagesAsRead()
         {
@@ -1166,7 +1270,8 @@
                             else
                             {
                                 echo "<input type='button' id=".$row['userId']." value='Prihvati' onclick='approve(this.id)' class='button' >";
-                                echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='dangerButton' >";
+
+                                echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='dangerButton1' >";
                             }
                         }
                     }
@@ -1245,8 +1350,6 @@
                     echo "<h4> Veštine </h4>";
                     echo "<p>".$row['skills']."</p>";
                 echo "</div>";
-
-                
 
             
                 echo "<div class='request-view-buttons'>";
@@ -1333,6 +1436,244 @@
                     echo "</div>";
                 }
                 echo "</div>";
+        }
+
+
+        function countClasses()
+        {
+            $user=new User();
+            $classes=$user->selectDataGeneric('classes');
+            $countsPerClassName=array();
+
+            foreach ($classes as $class)
+            {
+                if(array_key_exists($class['className'],$countsPerClassName))
+                    $countsPerClassName[$class['className']]++;
+                else
+                    $countsPerClassName[$class['className']]=1;
+            }
+
+            return $countsPerClassName;
+        }
+
+
+        function countClassesPerClassName()
+        {
+            $user=new User();
+            $classes=$user->selectDataGeneric('classes');
+            $classesPerClassName=array();
+
+            foreach ($classes as $class)
+            {
+                if(array_key_exists($class['className'],$classesPerClassName))
+                    $classesPerClassName[$class['className']][$class['creatorId']]++;
+                else
+                    $classesPerClassName[$class['className']][$class['creatorId']]=1;
+            }
+
+            return $classesPerClassName;
+        }
+
+
+        function displayStats($classCount)
+        {
+            echo '<div class="stat-list">';
+            $counter=1;
+            foreach($classCount as $class => $count)
+                {
+                    if($counter>10)
+                        break;
+                    echo "<div class='class-stat-container'>";
+                    echo "<div class='class-stat-disp'>
+                                <div class='stat-elem-counter'>$counter.</div> 
+                                <div class='stat-elem-class'>$class</div> 
+                                <div class='stat-elem-count'>$count</div>
+                        </div><br>";
+                    echo "</div>";
+                    $counter++;
+                }
+            echo "</div>";
+        }
+
+        function displayAverageStats($classCountPerClassName)
+        {
+
+            foreach($classCountPerClassName as $class => $creators)
+            {
+                $totSum=0;
+                foreach ($creators as $creator=>$count)
+                    $totSum+=$count;
+                $averageCounts[$class]=$totSum/count($creators);
+            }
+
+            $counter=1; 
+            arsort($averageCounts);
+
+            echo '<div class="stat-list">';
+            foreach($averageCounts as $class => $averageCount) 
+            {
+                if($counter>10)
+                        break;
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>
+                            <div class='stat-elem-counter'>$counter.</div> 
+                            <div class='stat-elem-class'>$class</div> 
+                            <div class='stat-elem-count'>$averageCount</div>
+                    </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+
+            echo "</div>";
+        }
+        
+
+        function displayStatsRatings()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $ratings=array();
+            $ratingCounts=array();
+            foreach($mentorData as $mentor)
+            {
+                $ratings[$mentor['userId']]=getAverageRating($mentor['userId'],$user);
+                if(!$ratings)
+                    $ratings[$mentor['userId']]=0;
+                $ratingCounts[$mentor['userId']]=count($user->selectDataGeneric('ratings',array('ratedId'),array($mentor['userId'])));
+            }
+
+            arsort($ratings);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($ratings as $userId=>$averageRating) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> $averageRating <span>&#9733;</span> ; # ".$ratingCounts[$userId]."</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
+        }
+
+
+        function displayStatsRatingCounts()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $counts=array();
+            foreach($mentorData as $mentor)
+            {
+                $mentorRatings=$user->selectDataGeneric('ratings',array('ratedId'),array($mentor['userId']));
+                if(!$mentorRatings)
+                    $counts[$mentor['userId']]=0;
+                else   
+                    $counts[$mentor['userId']]=count($mentorRatings);
+            }
+
+            arsort($counts);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($counts as $userId=>$count) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> #$count</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
+        }
+        function displayStatsCommentCounts()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $counts=array();
+            foreach($mentorData as $mentor)
+            {
+                $mentorComments=$user->selectDataGeneric('comments',array('recieverId'),array($mentor['userId']));
+                if(!$mentorComments)
+                    $counts[$mentor['userId']]=0;
+                else   
+                    $counts[$mentor['userId']]=count($mentorComments);
+            }
+
+            arsort($counts);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($counts as $userId=>$count) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> #$count</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
+        }
+
+        function displayStatsClassesCounts()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $counts=array();
+            foreach($mentorData as $mentor)
+            {
+                $mentorClasses=$user->selectDataGeneric('classes',array('creatorId'),array($mentor['userId']));
+                if(!$mentorClasses)
+                    $counts[$mentor['userId']]=0;
+                else   
+                    $counts[$mentor['userId']]=count($mentorClasses);
+            }
+
+            arsort($counts);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($counts as $userId=>$count) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> #$count</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
         }
 
 ?>

@@ -62,7 +62,6 @@
                         $skills=$_POST['skills'];
 
                         $userData=$user->selectDataGeneric('users',array('userId'),array($profileId))[0];
-                        
 
                         if(empty($mail))
                             $mail=$userData['mail'];
@@ -90,8 +89,7 @@
                                 $interests=$userSpecificData['interests'];
                             
                             
-                            $allOk=validateSettingsChangeUser($mail,$firstName,$lastName,$skills,$education,$interests,$_SESSION['uID'],$user);
-                            
+                            $allOk=validateSettingsChangeUser($mail,$firstName,$lastName,$skills,$education,$interests,$_SESSION['uID'],$user);             
                         }
                         else
                         {
@@ -108,6 +106,7 @@
                                 $yearExp=$_POST['yearExp'];
 
                             $allOk=validateSettingsChangeMentor($mail,$firstName,$lastName,$skills,$yearExp,$knowledge,$_SESSION['uID'],$user);
+
                         }
                         if(!$allOk)
                             $errorstr=$user->displayErrors();
@@ -162,7 +161,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
     <?php

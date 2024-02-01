@@ -139,7 +139,8 @@ class Request extends User{
         try{
             $statement=$this->conn->prepare("SELECT * from requests where senderId=? and recieverId=?");
             $statement->execute([$uId,$mId]);
-            $res=$statement->fetchALL(PDO::FETCH_ASSOC);
+            $res=$statement->fetchALL(PDO::FETCH_ASSOC)[0];
+
             if($res)
                 return true;
             return false;

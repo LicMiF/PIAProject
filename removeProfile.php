@@ -14,6 +14,19 @@
         else
             echo "Failed!";
 
+
+
+
+        $comments=$user->selectDataGeneric('comments',array('recieverId'),array($_POST['id']));
+
+        foreach($comments as $comment)
+        {
+            if($user->deleteDataGeneric('likes',array('commentId'),array($comment['commentId'])))
+                echo "Success!";
+            else
+                echo "Failed!";
+        }
+
         if($user->deleteDataGeneric('comments',array('recieverId'),array($_POST['id'])))
             echo "Success!";
         else
@@ -38,6 +51,12 @@
             echo "Failed!";
 
         if($user->deleteDataGeneric('requests',array('senderId'),array($_POST['id'])))
+            echo "Success!";
+        else
+            echo "Failed!";
+
+
+        if($user->deleteDataGeneric('likes',array('senderId'),array($_POST['id'])))
             echo "Success!";
         else
             echo "Failed!";

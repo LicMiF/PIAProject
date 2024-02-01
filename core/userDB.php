@@ -104,6 +104,7 @@ class User{
             $columns=array("mail","firstName","lastName","skills");
             $statement=$this->conn->prepare($this->generateUpdateAndWhereQuery('users',$columns,array('userId')));
             $statement->execute([$mail,$firstName ,$lastName,$skills,$uID]);
+
             return true;
         }
         catch(PDOException $e)
@@ -225,7 +226,6 @@ class User{
 
 
 
-    
     public function updateDataGeneric($table,$cols,$vals,$whereCols=NULL,$whereConds=NULL)
     {
         try {
@@ -385,10 +385,19 @@ class User{
     {   
         try {
             $statement = $this->conn->prepare("
-                SELECT users.*, userSpecific.*, mentorSpecific.*
-                FROM users
-                LEFT JOIN userSpecific ON users.userId = userSpecific.userId AND users.userType = 0
-                LEFT JOIN mentorSpecific ON users.userId = mentorSpecific.userId AND users.userType = 1
+                        SELECT
+                        users.*,
+                        userSpecific.education,
+                        userSpecific.interests,
+                        mentorSpecific.yearExp,
+                        mentorSpecific.knowledge,
+                        mentorSpecific.timeAvailability
+                        FROM
+                            users
+                        LEFT JOIN
+                            userSpecific ON users.userId = userSpecific.userId AND users.userType = 0
+                        LEFT JOIN
+                            mentorSpecific ON users.userId = mentorSpecific.userId AND users.userType = 1;
             ");
             $statement->execute();
             $res = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -401,7 +410,7 @@ class User{
     }
 
 
-
+    /*Helper functions*/
 
     public function generateUpdateAndWhereQuery($tableName,$columns,$whereCols=NULL)
     {
@@ -502,7 +511,7 @@ class User{
         return $query;
     }
 
-
+/* Messages related */
     public function showMyMessages($id,$target){
         try{
             $statement = $this->conn->prepare("SELECT * FROM messages WHERE senderId=? AND recieverId=?");
@@ -603,18 +612,20 @@ class User{
 
     public function countUnreadMessages($receiverId, $senderId) {
         try {
-            $statement = $this->conn->prepare("SELECT COUNT(*) AS viewedReciever FROM messages WHERE recieverId=? AND senderId=? AND viewedReciever=0");
+            $statement = $this->conn->prepare("SELECT COUNT(*) AS unread_count FROM messages WHERE recieverId=? AND senderId=? AND viewedReciever=0");
             $statement->execute([$receiverId, $senderId]);
             $result = $statement->fetch(PDO::FETCH_ASSOC);
     
-            return $result['viewedReciever'];
+            // Return the count of unread messages
+            return $result['unread_count'];
     
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
-            return 0; 
+            return 0; // Return 0 in case of an error
         }
     }
 
+    /*Search related code*/
     public function searchForChatUsers($searchString,$userId,$userType)
     {
         try {

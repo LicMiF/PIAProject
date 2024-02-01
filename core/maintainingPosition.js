@@ -1,11 +1,12 @@
 
-$(document).ready(function() {
-    $('#commentFormId').submit(function(event) {
-        const scrollPosition = window.scrollY || window.pageYOffset;
-        sessionStorage.setItem('scrollPosition', scrollPosition.toString());
-    });
 
-    const storedScrollPosition = sessionStorage.getItem('scrollPosition');
+window.addEventListener('beforeunload', function () {
+    const currentScrollPosition = window.scrollY || window.pageYOffset;
+    localStorage.setItem('scrollPosition', currentScrollPosition);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const storedScrollPosition = localStorage.getItem('scrollPosition');
     if (storedScrollPosition !== null) {
         window.scrollTo(0, parseInt(storedScrollPosition, 10));
     }

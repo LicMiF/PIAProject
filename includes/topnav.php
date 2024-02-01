@@ -1,10 +1,11 @@
 <div class="topnav">
         <?php
-                if(isset($_SESSION['uID']) && ($_SESSION['userType']!='2'))
+
+                if(isset($_SESSION['uID']) && ($_SESSION['userType']!=2))
                 {
         ?>
                         <a href="#" onclick="viewProfile(<?=$_SESSION['uID']?>,<?=$_SESSION['userType']?>)">Profil</a>
-                        <a href="notifications.php">
+                        <a href="../notifications.php">
                                 Notifikacije
                                 <?php
                                         $user=new User();
@@ -26,22 +27,25 @@
                 }
                 if(isset($_SESSION['userType']))
                 {
-                        if($_SESSION['userType']==='0')
-                                echo'<a href="profileListing.php">Mentori</a>';
+                        if($_SESSION['userType']==0)
+                                echo'<a href="../profileListing.php">Mentori</a>';
 
-                        else if($_SESSION['userType']==='1')
-                                echo'<a href="profileListing.php">Korisnici</a>';
+                        else if($_SESSION['userType']==1)
+                                echo'<a href="../profileListing.php">Korisnici</a>';
 
-                        else if($_SESSION['userType']==='2')
-                                echo'<a href="controlPanel.php">Kontrolni panel</a>';
+                        else if($_SESSION['userType']==2)
+                        {
+                                echo'<a href="../controlPanel.php">Kontrolni panel</a>';
+                                echo'<a href="../statistics.php">Statistika</a>';
+                        }
                 }
                 else
-                        echo'<a href="profileListing.php">Profili</a>';
+                        echo'<a href="../profileListing.php">Profili</a>';
 
-                if(isset($_SESSION['userType']) && $_SESSION['userType']==='1')
+                if($_SESSION['userType']==1)
                 {
         ?>
-                        <a href="classSched.php">Časovi</a>
+                        <a href="../classSched.php">Časovi</a>
         <?php
                 }
         ?>

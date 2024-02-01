@@ -79,6 +79,9 @@
                     }
                     else
                     {
+
+                        $topNavSearchData=array_reverse($topNavSearchData);
+
                         foreach ($topNavSearchData as $row)
                         {
                             switch($userType)

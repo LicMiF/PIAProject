@@ -77,6 +77,7 @@
                         if($userType==0)
                         {
                             $userSpecificData=$user->selectDataGeneric('userSpecific',array('userId'),array($profileId))[0];
+
                             $education=$_POST['education'];
                             $interests=$_POST['interests'];                            
                             if(empty($_POST['education']))
@@ -121,6 +122,7 @@
                     if($userType==0)
                     {
                         $fields=array('Email'=>'mail','Ime'=>'firstName','Prezime'=>'lastName','Veštine'=>'skills','Obrazovanje'=>'education','Interesovanja'=>'interests');
+
                         $types=array('text','text','text','text','text','text');
                     }
                     else

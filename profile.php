@@ -17,9 +17,11 @@
                     <?php 
                         $user= new User();
                         $requests= new Request();
-                        $profileId=$_POST['profileId'];
+                        if(isset($_POST['profileId']))
+                            $profileId=$_POST['profileId'];
+                        else
+                            $profileId=$_SESSION['currentUserProfileId'];  
                         $errorstr=NULL;
-                        $data=$user->getUserData($profileId);
 
                         if($_POST['userType']==0)
                             displayUserProfileDataUser($profileId,$user);
@@ -31,6 +33,13 @@
                             $body=$_POST['commentSection'];
                             if(!validateComments($body,$_SESSION['uID'],$profileId,$user))
                                 $errorstr=$user->displayErrors();
+                            else
+                            {  
+                                sendCommentPostedNotification($profileId,$_SESSION['uID']);
+                                $_SESSION['currentUserProfileId']=$profileId;                          
+                                echo "<script> window.location.href = 'profile.php';</script>";
+                                exit(); 
+                            }
                         }
 
                         ?>
@@ -111,7 +120,8 @@
         const criticId=<?php echo $_SESSION['uID']?>;
         let userRating = <?php echo $myRating?>;
     </script>
-    <script src="core/rating.js" defer></script>
+    <script src="./core/rating.js" defer></script>
+
     <?php
         include_once "./includes/footer.html";
     ?>
