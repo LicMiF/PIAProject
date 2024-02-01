@@ -163,7 +163,7 @@
 
         if(!($user->selectDataGeneric('users',array('userId'),array($uID)))[0]['activate'])
         {
-            $user->appendError('Ispravni kredencijali, administrator još uvek nije aktivirao nalog.');
+            $user->appendError('Ispravni kredencijali ali administrator još uvek nije aktivirao nalog.');
             return false;
         }
         return $uID;
@@ -646,12 +646,38 @@
             $dateTime = new DateTime($comment['timestamp']);
             $formattedDate = $dateTime->format('Y-m-d H:i:s');
 
-            echo "  <div class='comment-footer'>
-                        <div class='like-btns'>
-                            <i class='fas fa-thumbs-up like-btn'></i>
-                            <i class='fas fa-thumbs-down dislike-btn'></i>
-                        </div>
-                        <span>Posted on: ".$formattedDate."</span>
+            /* Like and dislike logic */
+            $likeMetaData=$user->selectDataGeneric('likes',array('commentId','senderId'),array($comment['commentId'],$_SESSION['uID']));
+            $likeBtnClass='like-btn';
+            $dislikeBtnClass='dislike-btn';
+
+            if($likeMetaData)
+            {
+                if($likeMetaData[0]['liked'])
+                    $likeBtnClass.=" active";
+                else if($likeMetaData[0]['disliked'])
+                    $dislikeBtnClass.=" active";
+            }
+
+            $likedCommentData=$user->selectDataGeneric('likes',array('commentId','liked'),array($comment['commentId'],1));;
+            $dislikedCommentData=$user->selectDataGeneric('likes',array('commentId','disliked'),array($comment['commentId'],1));
+
+
+            $likeCounts='';
+            if($likedCommentData)
+                $likeCounts=count($likedCommentData);
+
+
+            $dislikeCounts='';
+            if($dislikedCommentData)
+                $dislikeCounts=count($dislikedCommentData);
+
+            echo "  <div class='comment-footer'>";
+            echo "      <div class='like-btns'>
+                            <i class='fas fa-thumbs-up ".$likeBtnClass."' id=".$comment['commentId']." onclick='handleLike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$likeCounts</div>
+                            <i class='fas fa-thumbs-down ".$dislikeBtnClass."' id=".$comment['commentId']." onclick='handleDislike(this.id,".$_SESSION['uID'].")'></i><div class='like-counts'>$dislikeCounts</div>
+                        </div>";
+            echo "      <span>Posted on: ".$formattedDate."</span>
                     </div>";
             
             echo ' </div>';
@@ -1119,7 +1145,7 @@
                             else
                             {
                                 echo "<input type='button' id=".$row['userId']." value='Prihvati' onclick='approve(this.id)' class='button' >";
-                                echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='dangerButton' >";
+                                echo "<input type='button' id=".$row['userId']." value='Odbij' onclick='refuse(this.id)' class='dangerButton1' >";
                             }
                         }
                     }
@@ -1287,6 +1313,243 @@
                     echo "</div>";
                 }
                 echo "</div>";
+        }
+
+        function countClasses()
+        {
+            $user=new User();
+            $classes=$user->selectDataGeneric('classes');
+            $countsPerClassName=array();
+
+            foreach ($classes as $class)
+            {
+                if(array_key_exists($class['className'],$countsPerClassName))
+                    $countsPerClassName[$class['className']]++;
+                else
+                    $countsPerClassName[$class['className']]=1;
+            }
+
+            return $countsPerClassName;
+        }
+
+
+        function countClassesPerClassName()
+        {
+            $user=new User();
+            $classes=$user->selectDataGeneric('classes');
+            $classesPerClassName=array();
+
+            foreach ($classes as $class)
+            {
+                if(array_key_exists($class['className'],$classesPerClassName))
+                    $classesPerClassName[$class['className']][$class['creatorId']]++;
+                else
+                    $classesPerClassName[$class['className']][$class['creatorId']]=1;
+            }
+
+            return $classesPerClassName;
+        }
+
+
+        function displayStats($classCount)
+        {
+            echo '<div class="stat-list">';
+            $counter=1;
+            foreach($classCount as $class => $count)
+                {
+                    if($counter>10)
+                        break;
+                    echo "<div class='class-stat-container'>";
+                    echo "<div class='class-stat-disp'>
+                                <div class='stat-elem-counter'>$counter.</div> 
+                                <div class='stat-elem-class'>$class</div> 
+                                <div class='stat-elem-count'>$count</div>
+                        </div><br>";
+                    echo "</div>";
+                    $counter++;
+                }
+            echo "</div>";
+        }
+
+        function displayAverageStats($classCountPerClassName)
+        {
+
+            foreach($classCountPerClassName as $class => $creators)
+            {
+                $totSum=0;
+                foreach ($creators as $creator=>$count)
+                    $totSum+=$count;
+                $averageCounts[$class]=$totSum/count($creators);
+            }
+
+            $counter=1; 
+            arsort($averageCounts);
+
+            echo '<div class="stat-list">';
+            foreach($averageCounts as $class => $averageCount) 
+            {
+                if($counter>10)
+                        break;
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>
+                            <div class='stat-elem-counter'>$counter.</div> 
+                            <div class='stat-elem-class'>$class</div> 
+                            <div class='stat-elem-count'>$averageCount</div>
+                    </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+
+            echo "</div>";
+        }
+        
+
+        function displayStatsRatings()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $ratings=array();
+            $ratingCounts=array();
+            foreach($mentorData as $mentor)
+            {
+                $ratings[$mentor['userId']]=getAverageRating($mentor['userId'],$user);
+                if(!$ratings)
+                    $ratings[$mentor['userId']]=0;
+                $ratingCounts[$mentor['userId']]=count($user->selectDataGeneric('ratings',array('ratedId'),array($mentor['userId'])));
+            }
+
+            arsort($ratings);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($ratings as $userId=>$averageRating) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> $averageRating <span>&#9733;</span> ; # ".$ratingCounts[$userId]."</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
+        }
+
+
+        function displayStatsRatingCounts()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $counts=array();
+            foreach($mentorData as $mentor)
+            {
+                $mentorRatings=$user->selectDataGeneric('ratings',array('ratedId'),array($mentor['userId']));
+                if(!$mentorRatings)
+                    $counts[$mentor['userId']]=0;
+                else   
+                    $counts[$mentor['userId']]=count($mentorRatings);
+            }
+
+            arsort($counts);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($counts as $userId=>$count) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> #$count</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
+        }
+        function displayStatsCommentCounts()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $counts=array();
+            foreach($mentorData as $mentor)
+            {
+                $mentorComments=$user->selectDataGeneric('comments',array('recieverId'),array($mentor['userId']));
+                if(!$mentorComments)
+                    $counts[$mentor['userId']]=0;
+                else   
+                    $counts[$mentor['userId']]=count($mentorComments);
+            }
+
+            arsort($counts);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($counts as $userId=>$count) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> #$count</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
+        }
+
+        function displayStatsClassesCounts()
+        {
+            $user=new User();
+            $mentorData=$user->selectDataGeneric('users',array('userType'),array(1));
+            $counts=array();
+            foreach($mentorData as $mentor)
+            {
+                $mentorClasses=$user->selectDataGeneric('classes',array('creatorId'),array($mentor['userId']));
+                if(!$mentorClasses)
+                    $counts[$mentor['userId']]=0;
+                else   
+                    $counts[$mentor['userId']]=count($mentorClasses);
+            }
+
+            arsort($counts);
+            $counter=1;
+            echo '<div class="stat-list">';
+            foreach ($counts as $userId=>$count) {
+                if($counter>10)
+                        break;
+                $userData=$user->getUserData($userId);
+                echo "<div class='class-stat-container'>";
+                echo "<div class='class-stat-disp'>";
+                echo "   <div class='stat-elem-counter'>$counter.</div> ";
+                echo "  <div class='user-image'>
+                                <img src='./uploads/".$userData['profileImagePath']."' alt='User Icon'>
+                        </div>";
+                echo "  <div class='stat-elem-class'>".$userData['firstName']." ".$userData['lastName']."</div> 
+                        <div class='stat-elem-count'> #$count</div>
+                </div><br>";
+                echo "</div>";
+                $counter++;
+            }
+            echo "</div>";
+
         }
 
 ?>
